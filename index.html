@@ -986,13 +986,34 @@
                 window.speechSynthesis.speak(ut);
             }
 
+            // --- PWA INSTALLATION ---
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                const btn = document.getElementById('btn-install');
+                btn.classList.remove('hidden');
+                console.log("Install prompt captured");
+            });
+
+            function installPWA() {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((result) => {
+                    if (result.outcome === 'accepted') {
+                        document.getElementById('btn-install').classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+
             // Init
             load();
 
             return {
                 startSession, handleCSV, backup, handleRestore,
                 clearData, flip, answer, speak, goHome,
-                openDictionary, search, deleteWord, speakWord
+                openDictionary, search, deleteWord, speakWord, installPWA
             };
         }();
 
@@ -1002,3 +1023,4 @@
 </body>
 
 </html>
+```
