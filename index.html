@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LingoFlow | Premium Flashcards</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            /* Palette: Deep Cosmic Blue/Purple */
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            /* Changed from white-based (foggy) to dark-based (clearer contrast) */
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+            --primary: #818cf8;
+            /* Indigo 400 */
+            --primary-glow: rgba(129, 140, 248, 0.4);
+            --secondary: #2dd4bf;
+            /* Teal 400 */
+            --success: #34d399;
+            /* Emerald 400 */
+            --error: #f87171;
+            /* Red 400 */
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            /* Made slightly lighter for better readability */
+
+            --card-w: min(90vw, 500px);
+            --card-h: min(70vh, 600px);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: rgba(129, 140, 248, 0.2);
+            top: 20%;
+            left: 20%;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(45, 212, 191, 0.15);
+            bottom: 20%;
+            right: 10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(30px, -50px);
+            }
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Glass Container */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow);
+            padding: 32px;
+            width: var(--card-w);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* DASHBOARD */
+        #dashboard {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .logo-area {
+            margin-bottom: 12px;
+        }
+
+        .logo-text {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #818cf8, #2dd4bf);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-val {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: 'Outfit';
+            color: var(--secondary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* ACTIONS */
+        .action-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        button {
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 16px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--primary-glow);
+        }
+
+        .btn-primary:disabled {
+            background: #475569;
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger-ghost {
+            background: transparent;
+            color: var(--error);
+            font-size: 0.9rem;
+            padding: 12px;
+            opacity: 0.8;
+        }
+
+        .btn-danger-ghost:hover {
+            opacity: 1;
+        }
+
+        .secondary-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .secondary-actions button {
+            flex: 1;
+            font-size: 0.9rem;
+            padding: 12px;
+        }
+
+        /* REVIEW SCREEN */
+        #review-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .scene {
+            width: var(--card-w);
+            height: 400px;
+            /* fixed height for card scene */
+            perspective: 1500px;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            border-radius: 24px;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 24px;
+            background: rgba(30, 41, 59, 0.95);
+            /* Dark Slate */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* FRONT */
+        .card-front {
+            z-index: 2;
+        }
+
+        .word-display {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            line-height: 1.1;
+        }
+
+        .pos-badge {
+            background: rgba(129, 140, 248, 0.15);
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tap-hint {
+            position: absolute;
+            bottom: 24px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* BACK */
+        .card-back {
+            transform: rotateY(180deg);
+            align-items: stretch;
+            /* Stretch content */
+            padding-top: 40px;
+            justify-content: flex-start;
+        }
+
+        .card-scroll-area {
+            overflow-y: auto;
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Scrollbar styling */
+            scrollbar-width: thin;
+        }
+
+        .back-section {
+            margin-bottom: 24px;
+            width: 100%;
+        }
+
+        .back-label {
+            color: var(--primary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .back-text {
+            font-size: 1.4rem;
+            line-height: 1.4;
+            color: #e2e8f0;
+        }
+
+        .example-block {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: left;
+            margin-top: 8px;
+            border-left: 3px solid var(--secondary);
+        }
+
+        .ex-line {
+            display: grid;
+            grid-template-columns: 24px 1fr;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .ex-line:last-child {
+            margin-bottom: 0;
+        }
+
+        .ex-flag {
+            opacity: 0.8;
+        }
+
+        .ex-sub {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Review Controls */
+        .controls {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+            width: var(--card-w);
+        }
+
+        .btn-review {
+            flex: 1;
+            background: #334155;
+            color: #e2e8f0;
+            padding: 18px;
+            font-size: 1rem;
+        }
+
+        .btn-review:hover {
+            background: #475569;
+        }
+
+        .btn-know {
+            flex: 1;
+            background: var(--success);
+            color: #064e3b;
+            box-shadow: 0 4px 15px rgba(52, 211, 153, 0.3);
+        }
+
+        .btn-know:hover {
+            background: #10b981;
+            box-shadow: 0 8px 20px rgba(52, 211, 153, 0.4);
+        }
+
+        /* TTS Button */
+        .tts-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .tts-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Nav Header */
+        .nav-header {
+            width: var(--card-w);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 8px;
+            margin-bottom: 8px;
+        }
+
+        .nav-back {
+            background: transparent;
+            color: var(--text-muted);
+            padding: 8px;
+            font-size: 0.9rem;
+            width: auto;
+        }
+
+        .nav-back:hover {
+            color: var(--text-main);
+            transform: translateX(-4px);
+        }
+
+        .progress-pill {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #334155;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            white-space: nowrap;
+        }
+
+        #toast.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="glass-panel">
+        <div class="logo-area">
+            <div class="logo-text">LingoFlow</div>
+            <div style="color: var(--text-muted); font-size: 0.95rem;">Master your vocabulary</div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-val" id="total-val">0</div>
+                <div class="stat-label">Total Words</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" id="due-val" style="color: var(--primary);">0</div>
+                <div class="stat-label">To Review</div>
+            </div>
+        </div>
+
+        <div class="action-area">
+            <button class="btn-primary" id="btn-start" onclick="app.startSession()">
+                <span>▶</span> Start Learning
+            </button>
+            <button class="btn-ghost" onclick="document.getElementById('csvInput').click()">
+                <span>➕</span> Add Words (CSV)
+            </button>
+
+            <div class="secondary-actions">
+                <button class="btn-ghost" onclick="app.backup()">Backup</button>
+                <button class="btn-ghost" onclick="document.getElementById('jsonInput').click()">Restore</button>
+            </div>
+
+            <button class="btn-danger-ghost" onclick="app.clearData()">Reset Application Data</button>
+        </div>
+    </div>
+
+    <!-- REVIEW -->
+    <div id="review-screen" class="hidden">
+        <div class="nav-header">
+            <button class="nav-back" onclick="app.goHome()">← Dashboard</button>
+            <div class="progress-pill" id="progress-indicator">0 / 0</div>
+        </div>
+
+        <div class="scene" onclick="app.flip()">
+            <div class="card" id="active-card">
+                <!-- FRONT -->
+                <div class="card-face card-front">
+                    <button class="tts-btn" onclick="event.stopPropagation(); app.speak()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                    </button>
+                    <div class="pos-badge" id="card-pos">NOUN</div>
+                    <div class="word-display" id="card-word">Wort</div>
+                    <div class="tap-hint">Tap to flip</div>
+                </div>
+
+                <!-- BACK -->
+                <div class="card-face card-back">
+                    <div class="card-scroll-area">
+                        <div class="back-section">
+                            <div class="back-label">Definition</div>
+                            <div class="back-text" id="card-def">Meaning goes here</div>
+                        </div>
+
+                        <div class="back-section">
+                            <div class="back-label">Example</div>
+                            <div class="example-block">
+                                <div class="ex-line">
+                                    <span class="ex-flag">🇩🇪</span>
+                                    <span id="card-ex-de">German example sentence.</span>
+                                </div>
+                                <div class="ex-line">
+                                    <span class="ex-flag">🇬🇧</span>
+                                    <span class="ex-sub" id="card-ex-en">English translation.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-review" onclick="app.answer(false)">Not Yet</button>
+            <button class="btn-know" onclick="app.answer(true)">I Know This</button>
+        </div>
+    </div>
+
+    <!-- HIDDEN INPUTS -->
+    <input type="file" id="csvInput" accept=".csv" class="hidden" onchange="app.handleCSV(event)">
+    <input type="file" id="jsonInput" accept=".json" class="hidden" onchange="app.handleRestore(event)">
+
+    <!-- TOAST -->
+    <div id="toast">
+        <span class="toast-icon">✨</span>
+        <span id="toast-msg">Notification</span>
+    </div>
+
+    <script>
+        /**
+         * LingoFlow Core Logic
+         * Handles CSV parsing, Persistence, and Game Loop
+         */
+        const App = function () {
+            const STORAGE_KEY = 'lingoflow_db_v1';
+            let db = {
+                words: [],     // { id, word, pos, def, ex_de, ex_en }
+                progress: {}   // { [id]: { known: boolean, lastReview: number } }
+            };
+            let sessionQueue = [];
+            let currentIndex = 0;
+
+            // --- PERSISTENCE ---
+            function load() {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    try { db = JSON.parse(raw); } catch (e) { console.error("Corrupt DB", e); }
+                }
+                updateDashboard();
+            }
+
+            function save() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+                updateDashboard();
+            }
+
+            // --- UI HELPERS ---
+            function showToast(msg, icon = '✨') {
+                const t = document.getElementById('toast');
+                document.getElementById('toast-msg').innerText = msg;
+                document.querySelector('.toast-icon').innerText = icon;
+                t.classList.add('visible');
+                setTimeout(() => t.classList.remove('visible'), 3000);
+            }
+
+            function updateDashboard() {
+                const total = db.words.length;
+                const known = Object.values(db.progress).filter(p => p.known).length;
+                const due = total - known;
+
+                document.getElementById('total-val').innerText = total;
+                document.getElementById('due-val').innerText = due;
+
+                const btn = document.getElementById('btn-start');
+                if (due === 0 && total > 0) {
+                    btn.disabled = true;
+                    btn.innerHTML = `<span>🎉</span> All Learned!`;
+                    btn.classList.add('finished');
+                } else if (total === 0) {
+                    btn.disabled = true;
+                    btn.innerHTML = `Add words to start`;
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = `<span>▶</span> Review (${due})`;
+                }
+            }
+
+            // --- IMPORT / EXPORT ---
+            function handleCSV(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    const text = evt.target.result;
+                    const lines = text.split('\n');
+                    let added = 0;
+
+                    // existing IDs for O(1) lookup
+                    const existing = new Set(db.words.map(w => w.id));
+
+                    lines.forEach(line => {
+                        if (!line.trim()) return;
+                        const cols = line.split('|');
+                        // Expecting at least up to Col 9 based on spec (0..9)
+                        if (cols.length < 9) return;
+
+                        // Parse
+                        const rawWord = cols[0];
+                        const cleanWord = rawWord.split('#')[0].trim();
+                        if (!cleanWord) return;
+
+                        // ID strategy: use the German word itself (unique key)
+                        const id = cleanWord;
+
+                        if (!existing.has(id)) {
+                            db.words.push({
+                                id: id,
+                                word: cleanWord,
+                                pos: cols[1] || 'Word',
+                                def: cols[5] || 'No definition', // Col 5 based on user req
+                                ex_de: cols[8] || '',            // Col 8
+                                ex_en: cols[9] || ''             // Col 9
+                            });
+                            existing.add(id);
+                            added++;
+                        }
+                    });
+
+                    save();
+                    showToast(`Added ${added} new words!`, '📥');
+                    e.target.value = ''; // reset
+                };
+                reader.readAsText(file);
+            }
+
+            function backup() {
+                const str = JSON.stringify(db);
+                const blob = new Blob([str], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `lingoflow_backup_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+
+            function handleRestore(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    try {
+                        const data = JSON.parse(evt.target.result);
+                        if (data.words && data.progress) {
+                            if (confirm("Replace current data with this backup?")) {
+                                db = data;
+                                save();
+                                showToast("Data restored!", '↺');
+                            }
+                        } else {
+                            alert("Invalid file format");
+                        }
+                    } catch (err) {
+                        alert("Error reading file");
+                    }
+                    e.target.value = '';
+                };
+                reader.readAsText(file);
+            }
+
+            function clearData() {
+                if (confirm("⚠ Are you sure you want to delete all words and progress?")) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    db = { words: [], progress: {} };
+                    updateDashboard();
+                    showToast("Database wiped", '🗑');
+                }
+            }
+
+            // --- SESSION LOGIC ---
+            function startSession() {
+                // Find unknown words
+                sessionQueue = db.words.filter(w => {
+                    const p = db.progress[w.id];
+                    return !p || !p.known;
+                });
+
+                if (sessionQueue.length === 0) return;
+
+                // Shuffle
+                for (let i = sessionQueue.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [sessionQueue[i], sessionQueue[j]] = [sessionQueue[j], sessionQueue[i]];
+                }
+
+                currentIndex = 0;
+                document.getElementById('dashboard').classList.add('hidden');
+                document.getElementById('review-screen').classList.remove('hidden');
+                renderCard();
+            }
+
+            function renderCard() {
+                if (currentIndex >= sessionQueue.length) {
+                    showToast("Session Complete!", '🏆');
+                    goHome();
+                    return;
+                }
+
+                const card = sessionQueue[currentIndex];
+                const cleanPos = (card.pos || '').split('#')[0]; // clean pos tags if any
+
+                // Reset Flip
+                document.getElementById('active-card').classList.remove('flipped');
+
+                // Populate
+                document.getElementById('card-word').innerText = card.word;
+                document.getElementById('card-pos').innerText = cleanPos;
+
+                // Back Side
+                document.getElementById('card-def').innerText = card.def;
+                document.getElementById('card-ex-de').innerText = card.ex_de;
+                document.getElementById('card-ex-en').innerText = card.ex_en;
+
+                // Progress
+                document.getElementById('progress-indicator').innerText =
+                    `${currentIndex + 1} / ${sessionQueue.length}`;
+            }
+
+            function flip() {
+                document.getElementById('active-card').classList.toggle('flipped');
+            }
+
+            function answer(known) {
+                const card = sessionQueue[currentIndex];
+
+                if (known) {
+                    db.progress[card.id] = { known: true, lastReview: Date.now() };
+                    save(); // Autosave progress
+                }
+
+                currentIndex++;
+                // Small delay to allow user to see feedback could be added, but instant is better for detailed implementation
+                setTimeout(() => renderCard(), 150);
+            }
+
+            function speak() {
+                const word = sessionQueue[currentIndex].word;
+                const ut = new SpeechSynthesisUtterance(word);
+                ut.lang = 'de-DE';
+                window.speechSynthesis.speak(ut);
+            }
+
+            function goHome() {
+                document.getElementById('review-screen').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                updateDashboard();
+            }
+
+            // Init
+            load();
+
+            return {
+                startSession, handleCSV, backup, handleRestore,
+                clearData, flip, answer, speak, goHome
+            };
+        }();
+
+        // Expose app to window for onclick handlers
+        window.app = App;
+    </script>
+</body>
+
+</html>
