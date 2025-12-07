@@ -457,73 +457,67 @@
             z-index: 10;
         }
 
-        .tts-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Nav Header */
-        .nav-header {
-            width: var(--card-w);
+        .list-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 8px;
-            margin-bottom: 8px;
         }
 
-        .nav-back {
-            background: transparent;
-            color: var(--text-muted);
-            padding: 8px;
-            font-size: 0.9rem;
-            width: auto;
+        .list-item:hover {
+            background: rgba(255, 255, 255, 0.08);
         }
 
-        .nav-back:hover {
+        .li-main {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .li-word {
+            font-weight: 700;
+            font-size: 1.1rem;
             color: var(--text-main);
-            transform: translateX(-4px);
         }
 
-        .progress-pill {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 6px 12px;
-            border-radius: 20px;
+        .li-def {
             font-size: 0.85rem;
-            font-weight: 600;
+            color: var(--text-muted);
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .li-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-mini {
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .btn-mini:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-mini.del:hover {
+            background: rgba(248, 113, 113, 0.2);
+            color: var(--error);
         }
 
         /* Utilities */
         .hidden {
             display: none !important;
-        }
-
-        /* Toast */
-        #toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #334155;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1000;
-            white-space: nowrap;
-        }
-
-        #toast.visible {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        .toast-icon {
-            font-size: 1.2rem;
         }
     </style>
 </head>
@@ -554,9 +548,14 @@
             <button class="btn-primary" id="btn-start" onclick="app.startSession()">
                 <span>▶</span> Start Learning
             </button>
-            <button class="btn-ghost" onclick="document.getElementById('csvInput').click()">
-                <span>➕</span> Add Words (CSV)
-            </button>
+            <div class="secondary-actions">
+                <button class="btn-ghost" onclick="document.getElementById('csvInput').click()">
+                    <span>➕</span> Add
+                </button>
+                <button class="btn-ghost" onclick="app.openDictionary()">
+                    <span>📖</span> Dictionary
+                </button>
+            </div>
 
             <div class="secondary-actions">
                 <button class="btn-ghost" onclick="app.backup()">Backup</button>
@@ -564,6 +563,20 @@
             </div>
 
             <button class="btn-danger-ghost" onclick="app.clearData()">Reset Application Data</button>
+        </div>
+    </div>
+
+    <!-- DICTIONARY SCREEN -->
+    <div id="dictionary-screen" class="glass-panel hidden">
+        <div class="nav-header">
+            <button class="nav-back" onclick="app.goHome()">← Dashboard</button>
+            <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-muted)">Word List</span>
+        </div>
+
+        <input type="text" class="search-bar" placeholder="Search words..." oninput="app.search(this.value)">
+
+        <div class="word-list" id="word-list-container">
+            <!-- Items injected here -->
         </div>
     </div>
 
@@ -860,8 +873,71 @@
 
             function goHome() {
                 document.getElementById('review-screen').classList.add('hidden');
+                document.getElementById('dictionary-screen').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
                 updateDashboard();
+            }
+
+            // --- DICTIONARY ---
+            function openDictionary() {
+                document.getElementById('dashboard').classList.add('hidden');
+                document.getElementById('dictionary-screen').classList.remove('hidden');
+                renderList();
+            }
+
+            function renderList(query = "") {
+                const container = document.getElementById('word-list-container');
+                container.innerHTML = "";
+
+                const q = query.toLowerCase();
+                const matches = db.words.filter(w =>
+                    w.word.toLowerCase().includes(q) ||
+                    w.def.toLowerCase().includes(q)
+                );
+
+                if (matches.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">No words found</div>`;
+                    return;
+                }
+
+                matches.forEach(w => {
+                    const el = document.createElement('div');
+                    el.className = 'list-item';
+                    el.innerHTML = `
+                        <div class="li-main">
+                            <div class="li-word">${w.word} <span style="font-size:0.8rem; opacity:0.6; font-weight:400; margin-left:8px;">${w.pos}</span></div>
+                            <div class="li-def">${w.def}</div>
+                        </div>
+                        <div class="li-actions">
+                            <button class="btn-mini" onclick="app.speakWord('${w.word}')" title="Pronounce">🔊</button>
+                            <button class="btn-mini del" onclick="app.deleteWord('${w.id}')" title="Delete">🗑</button>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
+            }
+
+            function search(val) {
+                renderList(val);
+            }
+
+            function deleteWord(id) {
+                if (!confirm("Delete this word permanently?")) return;
+
+                db.words = db.words.filter(w => w.id !== id);
+                delete db.progress[id];
+                save();
+
+                // Refresh list if visible
+                const searchVal = document.querySelector('.search-bar').value;
+                renderList(searchVal);
+                showToast("Word deleted", '🗑');
+            }
+
+            function speakWord(text) {
+                const ut = new SpeechSynthesisUtterance(text);
+                ut.lang = 'de-DE';
+                window.speechSynthesis.speak(ut);
             }
 
             // Init
@@ -869,7 +945,8 @@
 
             return {
                 startSession, handleCSV, backup, handleRestore,
-                clearData, flip, answer, speak, goHome
+                clearData, flip, answer, speak, goHome,
+                openDictionary, search, deleteWord, speakWord
             };
         }();
 
