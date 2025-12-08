@@ -1023,50 +1023,13 @@
         // --- SERVICE WORKER REGISTRATION ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Add status indicator
-                const statusDiv = document.createElement('div');
-                statusDiv.style.position = 'fixed';
-                statusDiv.style.bottom = '10px';
-                statusDiv.style.right = '10px';
-                statusDiv.style.padding = '8px 12px';
-                statusDiv.style.background = 'rgba(0,0,0,0.8)';
-                statusDiv.style.color = 'white';
-                statusDiv.style.borderRadius = '20px';
-                statusDiv.style.fontSize = '12px';
-                statusDiv.style.pointerEvents = 'none';
-                statusDiv.style.zIndex = '9999';
-                statusDiv.id = 'pwa-status';
-                statusDiv.innerText = '⚙️ Init SW...';
-                document.body.appendChild(statusDiv);
-
-                function updateStatus(msg, color = 'white') {
-                    const el = document.getElementById('pwa-status');
-                    if (el) { el.innerText = msg; el.style.color = color; }
-                }
-
                 navigator.serviceWorker.register('./sw.js')
                     .then((reg) => {
                         console.log('Service Worker registered! Scope:', reg.scope);
-                        updateStatus('✅ Ready for Offline', '#4ade80');
-
-                        reg.addEventListener('updatefound', () => {
-                            const newWorker = reg.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                updateStatus(`⚙️ SW: ${newWorker.state}`);
-                                if (newWorker.state === 'activated') {
-                                    updateStatus('✅ Offline Ready (v2)', '#4ade80');
-                                }
-                            });
-                        });
                     })
                     .catch((err) => {
                         console.error('Service Worker registration failed:', err);
-                        updateStatus('❌ SW Failed', '#f87171');
                     });
-
-                // Monitor Online/Offline
-                window.addEventListener('offline', () => updateStatus('📡 Offline Mode', '#facc15'));
-                window.addEventListener('online', () => updateStatus('✅ Online', '#4ade80'));
             });
         }
     </script>
