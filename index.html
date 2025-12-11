@@ -687,6 +687,128 @@
         .hidden {
             display: none !important;
         }
+
+        /* Gamified Dashboard Extras */
+        .hero-section {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .daily-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.9) 60%, rgba(129, 140, 248, 0.2));
+            border: 4px solid rgba(129, 140, 248, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 40px rgba(129, 140, 248, 0.2);
+            margin-bottom: 24px;
+            position: relative;
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 40px rgba(129, 140, 248, 0.2);
+                border-color: rgba(129, 140, 248, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 60px rgba(129, 140, 248, 0.4);
+                border-color: rgba(129, 140, 248, 0.6);
+            }
+        }
+
+        .daily-val {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(to bottom, #fff, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .daily-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 8px;
+        }
+
+        .arcade-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            width: 100%;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-icon {
+            font-size: 2.5rem;
+        }
+
+        .game-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        /* Streak & Stats */
+        .streak-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .progress-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--success));
+            width: 0%;
+            transition: width 1s ease;
+        }
     </style>
 </head>
 
@@ -695,59 +817,87 @@
     <div class="orb orb-2"></div>
 
     <!-- DASHBOARD -->
-    <div id="dashboard" class="glass-panel">
-        <div class="logo-area">
-            <div class="logo-text">LingoFlow</div>
-            <div style="color: var(--text-muted); font-size: 0.95rem;">Master your vocabulary</div>
-        </div>
-
-        <div class="stats-row">
-            <div class="stat-box">
-                <div class="stat-val" id="total-val">0</div>
-                <div class="stat-label">Total Words</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-val" id="due-val" style="color: var(--primary);">0</div>
-                <div class="stat-label">To Review</div>
+    <div id="dashboard" class="glass-panel" style="position: relative;">
+        <!-- Header -->
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 24px;">
+            <div class="logo-text" style="font-size: 1.8rem;">LingoFlow</div>
+            <div class="streak-box">
+                This is streak
+                <span id="streak-icon">🔥</span>
+                <span id="streak-val">0</span>
             </div>
         </div>
 
-        <div class="action-area">
-            <!-- Tag Filter -->
-            <div style="display:flex; gap:8px;">
-                <input list="tag-suggestions" id="tag-filter" placeholder="Filter by tag (optional)"
-                    style="flex:1; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:white; font-family:'Outfit';">
-                <datalist id="tag-suggestions"></datalist>
+        <!-- Hero: Daily Goal -->
+        <div class="hero-section">
+            <div class="daily-circle">
+                <div class="daily-val" id="due-val">0</div>
+                <div class="daily-label">Cards Due</div>
             </div>
 
-            <button class="btn-primary" id="btn-start" onclick="app.startSession()">
-                <span>▶</span> Start Learning
+            <button class="btn-primary" id="btn-start" onclick="app.startSession()"
+                style="width: 100%; padding: 20px; font-size: 1.2rem;">
+                <span>▶</span> Start Daily Session
             </button>
-            <div class="secondary-actions">
-                <button class="btn-ghost" onclick="document.getElementById('csvInput').click()">
-                    <span>➕</span> Add
-                </button>
-                <button class="btn-ghost" onclick="app.openDictionary()">
-                    <span>📖</span> Dictionary
-                </button>
-            </div>
-
-            <div class="secondary-actions">
-                <button class="btn-ghost" onclick="app.backup()">Backup</button>
-                <button class="btn-ghost" onclick="document.getElementById('jsonInput').click()">Restore</button>
-            </div>
-
-            <button class="btn-ghost" onclick="app.fetchCentralVocabulary(true)" title="Fetch new words from file">
-                <span>🔄</span> Update Deck
-            </button>
-
-            <button class="btn-primary hidden" id="btn-install" onclick="app.installPWA()"
-                style="background: var(--success); color: #064e3b;">
-                <span>📲</span> Install App
-            </button>
-
-            <button class="btn-danger-ghost" onclick="app.clearData()">Reset Application Data</button>
         </div>
+
+        <!-- Stats -->
+        <div style="width: 100%; margin-bottom: 24px;">
+            <div
+                style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+                <span>Total Mastery</span>
+                <span id="progress-text">0%</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-fill" id="total-progress"></div>
+            </div>
+        </div>
+
+        <!-- Arcade -->
+        <div style="width: 100%; text-align: left; margin-bottom: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 1px;
+            font-size: 0.8rem; text-transform: uppercase;">Practice Arcade</div>
+        <div class="arcade-grid">
+            <div class="game-card" onclick="alert('Memory Match Coming Soon!')">
+                <div class="game-icon">🧩</div>
+                <div class="game-title">Memory</div>
+            </div>
+            <div class="game-card" onclick="alert('Raindrop Race Coming Soon!')">
+                <div class="game-icon">🌧</div>
+                <div class="game-title">Raindrop</div>
+            </div>
+            <div class="game-card" onclick="alert('Crossword Coming Soon!')">
+                <div class="game-icon">✏️</div>
+                <div class="game-title">Crossword</div>
+            </div>
+            <div class="game-card" onclick="app.openDictionary()">
+                <div class="game-icon">📖</div>
+                <div class="game-title">Dictionary</div>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div style="display: flex; justify-content: center; gap: 16px; margin-top: 24px;">
+            <button class="btn-ghost" style="padding: 10px;" onclick="document.getElementById('csvInput').click()"
+                title="Add Words">
+                <span style="font-size: 1.2rem;">➕</span>
+            </button>
+            <button class="btn-ghost" style="padding: 10px;" onclick="app.backup()" title="Backup">
+                <span style="font-size: 1.2rem;">💾</span>
+            </button>
+            <button class="btn-ghost" style="padding: 10px;" onclick="app.fetchCentralVocabulary(true)"
+                title="Update Deck">
+                <span style="font-size: 1.2rem;">🔄</span>
+            </button>
+            <button class="btn-ghost" style="padding: 10px;" onclick="app.clearData()" title="Reset Data"
+                style="color: var(--error);">
+                <span style="font-size: 1.2rem;">🗑</span>
+            </button>
+        </div>
+
+        <!-- HIDDEN TAG FILTER FOR BACKWARD COMPATIBILITY (until app.js updated) -->
+        <input type="hidden" id="tag-filter" value="">
+        <datalist id="tag-suggestions"></datalist>
     </div>
 
     <!-- DICTIONARY SCREEN -->

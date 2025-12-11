@@ -22,6 +22,7 @@ export function load() {
             // Migration check could go here if moving from v1 to v2
             if (!db.words) db.words = [];
             if (!db.progress) db.progress = {};
+            if (!db.stats) db.stats = { streak: 0, lastReviewDate: null };
         } catch (e) {
             console.error("Corrupt DB", e);
         }

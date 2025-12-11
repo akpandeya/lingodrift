@@ -37,21 +37,39 @@ function updateDashboard() {
         return p.dueDate <= now;
     }).length;
 
-    document.getElementById('total-val').innerText = total;
     document.getElementById('due-val').innerText = dueCount;
 
+    // Progress: Known words (Repetition > 0)
+    const learned = db.words.filter(w => db.progress[w.id] && db.progress[w.id].repetition > 0).length;
+    const pct = total > 0 ? Math.round((learned / total) * 100) : 0;
+    const progBar = document.getElementById('total-progress');
+    if (progBar) progBar.style.width = `${pct}%`;
+    const progText = document.getElementById('progress-text');
+    if (progText) progText.innerText = `${pct}%`;
+
+    // Streak Logic
+    if (!db.stats) db.stats = { streak: 0, lastReviewDate: null };
+    let displayStreak = db.stats.streak;
+
+    if (db.stats.lastReviewDate) {
+        const last = new Date(db.stats.lastReviewDate);
+        last.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const diff = (today - last) / (1000 * 60 * 60 * 24);
+
+        if (diff > 1) {
+            displayStreak = 0; // Streak broken
+        }
+    }
+    const streakEl = document.getElementById('streak-val');
+    if (streakEl) streakEl.innerText = displayStreak;
+
+    // Start Button state
     const btn = document.getElementById('btn-start');
     if (dueCount === 0 && total > 0) {
-        btn.disabled = false; // Allow review anyway? Or disable?
-        // Anki usually allows "Custom Study" but for now let's say "Zero Due"
-        // But users might want to review ahead.
-        // Let's keep it simple: If 0 due, maybe show "Review Ahead"?
-        // Or just disable as per original spec "All Learned".
-        // With SRS, "All Learned" isn't quite right. "No Due Cards".
-
-        // Let's allow users to start session even if 0 due, maybe pulling ahead?
-        // Or just disabled. Let's stick to disabled for now to encourage spacing.
-        btn.innerHTML = `<span>🎉</span> No Due Cards`;
+        // Optional: Allow review ahead? For now, stick to SRS.
+        btn.innerHTML = `<span>🎉</span> All Caught Up`;
         btn.disabled = true;
         btn.classList.add('finished');
     } else if (total === 0) {
@@ -60,11 +78,11 @@ function updateDashboard() {
     } else {
         btn.disabled = false;
         btn.classList.remove('finished');
-        btn.innerHTML = `<span>▶</span> Review (${dueCount})`;
+        btn.innerHTML = `<span>▶</span> Start Daily Session`;
     }
 
     // Update Tag Datalist
-    if (window.getUniqueTags) updateTagList(); // Helper below
+    if (window.getUniqueTags) updateTagList();
     else updateTagList();
 }
 
@@ -189,6 +207,7 @@ function answer(grade) {
 
     const nextState = SRS.calculateNextState(currentProgress, grade);
     Storage.updateProgress(card.id, nextState);
+    updateStreak(); // Check and update streak
 
     // If grade is AGAIN (0), re-queue it?
     // Anki re-queues "Again" cards in the same session usually (learning steps).
@@ -546,6 +565,40 @@ window.addEventListener('beforeinstallprompt', (e) => {
     const btn = document.getElementById('btn-install');
     if (btn) btn.classList.remove('hidden');
 });
+
+function updateStreak() {
+    const db = Storage.getDB();
+    if (!db.stats) db.stats = { streak: 0, lastReviewDate: null };
+
+    const now = new Date();
+    const todayStr = now.toDateString();
+
+    // Check logic
+    const lastDate = db.stats.lastReviewDate ? new Date(db.stats.lastReviewDate) : null;
+    const lastStr = lastDate ? lastDate.toDateString() : null;
+
+    if (todayStr === lastStr) return; // Already reviewed today
+
+    // Check if yesterday
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
+
+    if (lastStr === yesterdayStr) {
+        db.stats.streak++;
+    } else {
+        // Streak broken or first time
+        // If it was null (first time ever) -> 1
+        // If it was days ago -> 1
+        db.stats.streak = 1;
+    }
+
+    db.stats.lastReviewDate = Date.now();
+
+    // Manually save because we modified stats, not progress
+    Storage.save();
+    updateDashboard();
+}
 
 
 // EXPORT GLOBAL
