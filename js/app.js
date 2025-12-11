@@ -9,6 +9,7 @@ import * as Dict from './dictionary.js';
 let sessionQueue = [];
 let currentIndex = 0;
 let isFlipped = false;
+let cachedTags = null; // Optimization cache
 
 // --- INIT ---
 Storage.load();
@@ -21,6 +22,7 @@ if (db.settings.activeFilter && !Array.isArray(db.settings.activeFilter)) {
 } else if (!db.settings.activeFilter) {
     db.settings.activeFilter = [];
 }
+refreshTagCache(); // Initial cache build
 // Listeners for Tag Input
 const input = document.getElementById('focus-input');
 if (input) {
@@ -154,18 +156,16 @@ function handleFocusInput(val) {
 
     const q = val.toLowerCase();
 
-    // Collect all unique tags
-    const allTags = new Set();
-    db.words.forEach(w => {
-        if (w.tags) w.tags.forEach(t => allTags.add(t));
-    });
+    // Use cached tags for performance
+    if (!cachedTags) refreshTagCache();
 
     const activeTags = db.settings.activeFilter || [];
 
     // Filter suggestions: Match query AND not already active
-    const suggestions = Array.from(allTags).filter(t =>
+    // Limit suggestions to 50 for rendering performance
+    const suggestions = cachedTags.filter(t =>
         t.toLowerCase().includes(q) && !activeTags.includes(t)
-    ).sort();
+    ).slice(0, 50);
 
     if (suggestions.length === 0) {
         dropdown.classList.add('hidden');
@@ -380,6 +380,7 @@ function handleCSV(e) {
         if (res.added > 0) showToast(res.message, '📥');
         else showToast(res.message, 'Hz');
 
+        refreshTagCache(); // Rebuild cache after import
         updateDashboard();
         e.target.value = '';
     };
@@ -402,6 +403,7 @@ function fetchCentralVocabulary(manual = false) {
             } else {
                 // Auto-load silent merge
                 Storage.mergeWords(words, false);
+                refreshTagCache(); // Rebuild cache after fetch
                 updateDashboard();
             }
         })
@@ -775,8 +777,23 @@ const app = {
     endCrosswordGame: Games.endCrosswordGame,
 
     // Tag Input Logic
-    handleFocusInput, addFocusTag, removeFocusTag
+    handleFocusInput, addFocusTag, removeFocusTag, refreshTagCache
 };
+
+function refreshTagCache() {
+    const db = Storage.getDB();
+    const tags = new Set();
+    // Optimization: iterate once
+    for (let i = 0; i < db.words.length; i++) {
+        const w = db.words[i];
+        if (w.tags) {
+            for (let j = 0; j < w.tags.length; j++) {
+                tags.add(w.tags[j]);
+            }
+        }
+    }
+    cachedTags = Array.from(tags).sort();
+}
 
 window.app = app;
 
