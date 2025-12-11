@@ -624,7 +624,9 @@ const app = {
     startMemoryGame: Games.startMemoryGame,
     endMemoryGame: Games.endMemoryGame,
     startRaindropGame: Games.startRaindropGame,
-    endRaindropGame: Games.endRaindropGame
+    endRaindropGame: Games.endRaindropGame,
+    startCrosswordGame: Games.startCrosswordGame,
+    endCrosswordGame: Games.endCrosswordGame
 };
 
 window.app = app;
