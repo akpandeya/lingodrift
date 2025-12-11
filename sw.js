@@ -34,31 +34,38 @@ self.addEventListener('activate', (e) => {
     return self.clients.claim(); // Control all clients immediately
 });
 
-self.addEventListener('fetch', (e) => {
-    // Only handle HTTP/HTTPS
-    if (!e.request.url.startsWith('http')) return;
+// Only handle HTTP/HTTPS
+if (!e.request.url.startsWith('http')) return;
 
-    e.respondWith(
-        caches.match(e.request).then((cached) => {
-            // 1. Try Cache
-            if (cached) return cached;
+// Ignore Cross-Origin (CDNs, etc)
+if (!e.request.url.startsWith(self.location.origin)) return;
 
-            // 2. Network (and cache result)
-            return fetch(e.request).then((res) => {
-                // Determine if we should cache this response
-                // Cache everything that is successful
-                if (res && res.status === 200 && res.type === 'basic') {
-                    const clone = res.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
-                }
-                return res;
-            }).catch(() => {
-                // 3. Offline Fallback for Navigation
-                if (e.request.mode === 'navigate') {
-                    return caches.match('/index.html')
-                        .then(r => r || caches.match('/'));
-                }
-            });
-        })
-    );
+// IGNORE /tests/ directory
+
+// IGNORE /tests/ directory
+if (e.request.url.includes('/tests/')) return;
+
+e.respondWith(
+    caches.match(e.request).then((cached) => {
+        // 1. Try Cache
+        if (cached) return cached;
+
+        // 2. Network (and cache result)
+        return fetch(e.request).then((res) => {
+            // Determine if we should cache this response
+            // Cache everything that is successful
+            if (res && res.status === 200 && res.type === 'basic') {
+                const clone = res.clone();
+                caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+            }
+            return res;
+        }).catch(() => {
+            // 3. Offline Fallback for Navigation
+            if (e.request.mode === 'navigate') {
+                return caches.match('/index.html')
+                    .then(r => r || caches.match('/'));
+            }
+        });
+    })
+);
 });

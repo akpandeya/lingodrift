@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>LingoFlow Tests</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./vendor/mocha.css" />
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+        }
+
+        #mocha .test h2 {
+            color: white;
+        }
+
+        #mocha .test pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="error-display"
+        style="color: #ff6b6b; padding: 20px; font-family: monospace; white-space: pre-wrap; display: none; background: rgba(50,0,0,0.5);">
+    </div>
+    <div id="mocha"></div>
+
+    <script src="./vendor/chai.js"></script>
+    <script src="./vendor/mocha.js"></script>
+
+    <script>
+        // Global Error Handler to show issues on screen
+        window.addEventListener('error', function (event) {
+            const display = document.getElementById('error-display');
+            display.style.display = 'block';
+            display.innerText += `Error: ${event.message} at ${event.filename}:${event.lineno}\n`;
+            console.error(event.error);
+        });
+    </script>
+
+    <script class="mocha-init">
+        mocha.setup('bdd');
+        mocha.checkLeaks();
+    </script>
+
+    <!-- Test Files -->
+    <!-- We use a single module entry point to ensure ordering -->
+    <script type="module">
+        import './srs.test.js';
+
+        // Run mocha after imports are resolved
+        mocha.run();
+    </script>
+</body>
+
+</html>
