@@ -622,7 +622,9 @@ const app = {
 
     // Games
     startMemoryGame: Games.startMemoryGame,
-    endMemoryGame: Games.endMemoryGame
+    endMemoryGame: Games.endMemoryGame,
+    startRaindropGame: Games.startRaindropGame,
+    endRaindropGame: Games.endRaindropGame
 };
 
 window.app = app;

@@ -105,6 +105,162 @@ function updateMoves() {
     document.getElementById('mem-moves').innerText = moves;
 }
 
+// --- RAINDROP RACE ---
+let rainInterval = null;
+let gameLoopId = null;
+let activeDrops = [];
+let rainScore = 0;
+let rainLives = 5;
+let spawnRate = 2000;
+let dropSpeed = 1.5;
+
+export function startRaindropGame() {
+    const db = Storage.getDB();
+    if (db.words.length < 5) {
+        alert("Need at least 5 words to play!");
+        return;
+    }
+
+    // Reset
+    rainScore = 0;
+    rainLives = 5;
+    spawnRate = 2000;
+    dropSpeed = 1.5;
+    activeDrops = [];
+    document.getElementById('rain-score').innerText = '0';
+    document.getElementById('rain-lives').innerText = '❤️❤️❤️';
+    document.getElementById('rain-area').innerHTML = '';
+    document.getElementById('rain-input').value = '';
+
+    // Show Screen
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('raindrop-game-screen').classList.remove('hidden');
+    document.getElementById('rain-input').focus();
+
+    // Listeners
+    document.getElementById('rain-input').onkeydown = (e) => {
+        if (e.key === 'Enter') handleRainInput(e.target);
+    };
+
+    // Start Loops
+    rainInterval = setInterval(spawnDrop, spawnRate);
+    gameLoop();
+}
+
+function spawnDrop() {
+    const db = Storage.getDB();
+    const word = db.words[Math.floor(Math.random() * db.words.length)];
+
+    // Create Element
+    const el = document.createElement('div');
+    el.className = 'raindrop';
+    el.innerHTML = `<span>${word.word}</span>`;
+
+    // Use slightly less than 100vw to avoid overflow
+    const maxLeft = window.innerWidth - 120;
+    el.style.left = Math.random() * maxLeft + 'px';
+    el.style.top = '-100px';
+
+    document.getElementById('rain-area').appendChild(el);
+
+    activeDrops.push({
+        id: word.id,
+        word: word.word,
+        def: word.def, // The target answer (definition) - OR should it be translation?
+        // Wait, "Foreign Word" falls, user types "Translation"? 
+        // Assuming 'word' is Foreign (German) and 'def' is Definition (English).
+        // Let's allow either if it's too hard? Or stick to Definition.
+        // Let's stick to Definition (or part of it).
+        el: el,
+        y: -100
+    });
+}
+
+function gameLoop() {
+    gameLoopId = requestAnimationFrame(gameLoop);
+
+    const killZone = window.innerHeight - 100; // Above input area
+
+    activeDrops.forEach((drop, idx) => {
+        drop.y += dropSpeed;
+        drop.el.style.top = drop.y + 'px';
+
+        if (drop.y > killZone) {
+            // Missed!
+            activeDrops.splice(idx, 1);
+            if (drop.el.parentNode) drop.el.parentNode.removeChild(drop.el);
+            loseLife();
+        }
+    });
+}
+
+function handleRainInput(input) {
+    const val = input.value.trim().toLowerCase();
+    if (!val) return;
+
+    // Check matches
+    const matchIndex = activeDrops.findIndex(drop => {
+        // Simple fuzzy: active drop definition contains input?
+        // Or input contains definition?
+        // Or exact match?
+        // Let's do: Input must be contained in definition (easy mode) or exact.
+        // Actually, usually it's "Type what you see" (typing practice) OR "Translate".
+        // User prompt said: "Type the correct translation".
+        return drop.def.toLowerCase().includes(val) && val.length > 2; // Min 3 chars to prevent cheating with 'a'
+    });
+
+    if (matchIndex !== -1) {
+        // HIT!
+        const drop = activeDrops[matchIndex];
+
+        // Remove visual
+        // Maybe add pop effect?
+        drop.el.style.transform = 'scale(1.5)';
+        drop.el.style.opacity = '0';
+        setTimeout(() => {
+            if (drop.el.parentNode) drop.el.parentNode.removeChild(drop.el);
+        }, 200);
+
+        activeDrops.splice(matchIndex, 1);
+
+        rainScore++;
+        document.getElementById('rain-score').innerText = rainScore;
+        input.value = '';
+
+        // Difficulty scaling
+        if (rainScore % 5 === 0) {
+            dropSpeed += 0.2;
+            clearInterval(rainInterval);
+            spawnRate = Math.max(800, spawnRate - 200);
+            rainInterval = setInterval(spawnDrop, spawnRate);
+        }
+    } else {
+        // Wrong input feedback?
+        input.style.borderColor = 'red';
+        setTimeout(() => input.style.borderColor = 'var(--primary)', 200);
+    }
+}
+
+function loseLife() {
+    rainLives--;
+    let hearts = '';
+    for (let i = 0; i < rainLives; i++) hearts += '❤️';
+    document.getElementById('rain-lives').innerText = hearts;
+
+    if (rainLives <= 0) {
+        endRaindropGame();
+        alert(`Game Over! Final Score: ${rainScore}`);
+    }
+}
+
+export function endRaindropGame() {
+    clearInterval(rainInterval);
+    cancelAnimationFrame(gameLoopId);
+    activeDrops = [];
+    document.getElementById('raindrop-game-screen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+}
+
 function victory() {
     // Simple Confetti Effect (CSS or JS)
     // For now, let's just use an alert or a nice toast

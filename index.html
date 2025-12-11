@@ -900,6 +900,90 @@
             font-size: 0.8rem;
             border-color: var(--secondary);
         }
+
+        /* RAINDROP GAME CSS */
+        #raindrop-game-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #0f172a, #1e293b);
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        #rain-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.9), rgba(3, 105, 161, 0.9));
+            border-radius: 50% 50% 50% 0;
+            /* Teardrop shape */
+            transform: rotate(-45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 10;
+        }
+
+        .raindrop span {
+            transform: rotate(45deg);
+            /* Counter rotate text */
+            display: block;
+            max-width: 80px;
+            overflow: hidden;
+        }
+
+        .rain-ui {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 20;
+        }
+
+        .rain-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            border: 2px solid var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+
+        .rain-input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
     </style>
 </head>
 
@@ -953,7 +1037,7 @@
                 <div class="game-icon">🧩</div>
                 <div class="game-title">Memory</div>
             </div>
-            <div class="game-card" onclick="alert('Raindrop Race Coming Soon!')">
+            <div class="game-card" onclick="app.startRaindropGame()">
                 <div class="game-icon">🌧</div>
                 <div class="game-title">Raindrop</div>
             </div>
@@ -999,6 +1083,27 @@
         </div>
         <div class="memory-grid" id="memory-grid">
             <!-- Tiles injected here -->
+        </div>
+    </div>
+
+    <!-- RAINDROP GAME SCREEN -->
+    <div id="raindrop-game-screen" class="hidden">
+        <!-- Game Canvas/Area -->
+        <div id="rain-area">
+            <!-- Drops injected here -->
+        </div>
+
+        <!-- Ground / Input Area -->
+        <div class="rain-ui">
+            <div
+                style="display:flex; justify-content:space-between; width:100%; max-width:600px; margin-bottom:10px; color:white; font-weight:700;">
+                <div class="rain-stats">SCORE: <span id="rain-score">0</span></div>
+                <div class="rain-stats">LIVES: <span id="rain-lives">❤️❤️❤️</span></div>
+                <button class="btn-mini" onclick="app.endRaindropGame()"
+                    style="background:rgba(255,0,0,0.3);">Exit</button>
+            </div>
+
+            <input type="text" id="rain-input" class="rain-input" placeholder="Type answer..." autocomplete="off">
         </div>
     </div>
 
