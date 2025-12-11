@@ -7,8 +7,17 @@ let isLocked = false;
 
 export function startMemoryGame() {
     const db = Storage.getDB();
-    if (db.words.length < 8) {
-        alert("You need at least 8 words to play!");
+    const filterTags = db.settings ? (db.settings.activeFilter || []) : [];
+    let pool = db.words;
+
+    // Filter Logic: Match at least one tag
+    if (filterTags.length > 0) {
+        pool = pool.filter(w => w.tags && filterTags.some(t => w.tags.includes(t)));
+    }
+
+    if (pool.length < 8) {
+        const tagLabel = filterTags.length === 1 ? filterTags[0] : `${filterTags.length} tags`;
+        alert(filterTags.length > 0 ? `Not enough words with filter '${tagLabel}' (need 8)` : "You need at least 8 words to play!");
         return;
     }
 
@@ -20,7 +29,7 @@ export function startMemoryGame() {
     updateMoves();
 
     // Select 8 random words
-    const deck = [...db.words].sort(() => 0.5 - Math.random()).slice(0, 8);
+    const deck = [...pool].sort(() => 0.5 - Math.random()).slice(0, 8);
 
     // Create 16 tiles
     const tiles = [];
@@ -116,8 +125,16 @@ let dropSpeed = 1.5;
 
 export function startRaindropGame() {
     const db = Storage.getDB();
-    if (db.words.length < 5) {
-        alert("Need at least 5 words to play!");
+    const filterTags = db.settings ? (db.settings.activeFilter || []) : [];
+    let pool = db.words;
+
+    if (filterTags.length > 0) {
+        pool = pool.filter(w => w.tags && filterTags.some(t => w.tags.includes(t)));
+    }
+
+    if (pool.length < 5) {
+        const tagLabel = filterTags.length === 1 ? filterTags[0] : `${filterTags.length} tags`;
+        alert(filterTags.length > 0 ? `Not enough words with filter '${tagLabel}' (need 5)` : "Need at least 5 words to play!");
         return;
     }
 
@@ -149,7 +166,16 @@ export function startRaindropGame() {
 
 function spawnDrop() {
     const db = Storage.getDB();
-    const word = db.words[Math.floor(Math.random() * db.words.length)];
+    const filterTags = db.settings ? (db.settings.activeFilter || []) : [];
+    let pool = db.words;
+    if (filterTags.length > 0) {
+        pool = pool.filter(w => w.tags && filterTags.some(t => w.tags.includes(t)));
+    }
+
+    // Fallback
+    if (pool.length === 0) pool = db.words;
+
+    const word = pool[Math.floor(Math.random() * pool.length)];
 
     // Create Element
     const el = document.createElement('div');
@@ -269,16 +295,24 @@ let cwState = {}; // current grid state
 
 export function startCrosswordGame() {
     const db = Storage.getDB();
-    if (db.words.length < 10) {
-        alert("Need at least 10 words to generate crossword!");
+    const filterTags = db.settings ? (db.settings.activeFilter || []) : [];
+    let pool = db.words;
+
+    if (filterTags.length > 0) {
+        pool = pool.filter(w => w.tags && filterTags.some(t => w.tags.includes(t)));
+    }
+
+    if (pool.length < 10) {
+        const tagLabel = filterTags.length === 1 ? filterTags[0] : `${filterTags.length} tags`;
+        alert(filterTags.length > 0 ? `Not enough words with filter '${tagLabel}' (need 10)` : "Need at least 10 words to generate crossword!");
         return;
     }
 
     // Select words (try more to fit)
-    const pool = [...db.words].sort(() => 0.5 - Math.random()).slice(0, 15);
+    const selection = [...pool].sort(() => 0.5 - Math.random()).slice(0, 15);
 
     // Generate
-    const success = generateCrossword(pool);
+    const success = generateCrossword(selection);
     if (!success) {
         alert("Could not generate a valid grid. Try adding more words!");
         return;

@@ -1230,6 +1230,82 @@
             color: var(--text-muted);
             font-weight: 600;
         }
+
+        /* TAG INPUT CSS */
+        .tag-input-container {
+            width: 100%;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .tag-input-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            min-height: 48px;
+        }
+
+        .tag-chip {
+            background: var(--primary);
+            color: white;
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tag-chip span {
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .tag-chip span:hover {
+            opacity: 1;
+        }
+
+        .tag-input-field {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            flex-grow: 1;
+            min-width: 120px;
+            outline: none;
+        }
+
+        .tag-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-top: 4px;
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .tag-option {
+            padding: 10px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+        }
+
+        .tag-option:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
     </style>
 </head>
 
@@ -1248,6 +1324,17 @@
                 <span id="streak-icon">🔥</span>
                 <span id="streak-val">0</span>
             </div>
+        </div>
+
+
+        <!-- Focus/Tag Input -->
+        <div class="tag-input-container">
+            <div class="tag-input-wrapper" onclick="document.getElementById('focus-input').focus()">
+                <div id="active-tags-list" style="display:contents"></div>
+                <input type="text" id="focus-input" class="tag-input-field" placeholder="Filter by tag..."
+                    autocomplete="off">
+            </div>
+            <div id="focus-suggestions" class="tag-dropdown hidden"></div>
         </div>
 
         <!-- Hero: Daily Goal -->

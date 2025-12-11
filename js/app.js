@@ -12,6 +12,27 @@ let isFlipped = false;
 
 // --- INIT ---
 Storage.load();
+// DB Migration: Ensure settings exist
+const db = Storage.getDB();
+if (!db.settings) db.settings = { activeFilter: [] };
+// Ensure array
+if (db.settings.activeFilter && !Array.isArray(db.settings.activeFilter)) {
+    db.settings.activeFilter = [db.settings.activeFilter];
+} else if (!db.settings.activeFilter) {
+    db.settings.activeFilter = [];
+}
+// Listeners for Tag Input
+const input = document.getElementById('focus-input');
+if (input) {
+    input.addEventListener('input', (e) => app.handleFocusInput(e.target.value));
+    input.addEventListener('focus', (e) => app.handleFocusInput(e.target.value));
+    // Close dropdown on click outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.tag-input-container')) {
+            document.getElementById('focus-suggestions').classList.add('hidden');
+        }
+    });
+}
 updateDashboard();
 // Auto-fetch logic could be here, or triggered by UI
 fetchCentralVocabulary(false);
@@ -27,17 +48,30 @@ function showToast(msg, icon = '✨') {
     setTimeout(() => t.classList.remove('visible'), 3000);
 }
 
+
 function updateDashboard() {
     const db = Storage.getDB();
     const total = db.words.length;
+    const filterTags = db.settings.activeFilter || [];
 
-    // "Due" calculation based on SRS
+    // "Due" calculation based on SRS AND Filter
     const now = Date.now();
     const dueCount = db.words.filter(w => {
+        // Filter Check (OR Logic)
+        if (filterTags.length > 0) {
+            if (!w.tags) return false;
+            // Check if word has AT LEAST ONE of the active tags
+            const hasTag = filterTags.some(t => w.tags.includes(t));
+            if (!hasTag) return false;
+        }
+
         const p = db.progress[w.id];
         if (!p) return true; // New words are due
         return p.dueDate <= now;
     }).length;
+
+    // Update Focus UI
+    renderFocusWidget();
 
     document.getElementById('due-val').innerText = dueCount;
 
@@ -80,12 +114,100 @@ function updateDashboard() {
     } else {
         btn.disabled = false;
         btn.classList.remove('finished');
-        btn.innerHTML = `<span>▶</span> Start Daily Session`;
+        if (filterTags.length > 0) {
+            const label = filterTags.length === 1 ? filterTags[0] : `${filterTags.length} Tags`;
+            btn.innerHTML = `<span>▶</span> Review '${label}'`;
+        } else {
+            btn.innerHTML = `<span>▶</span> Start Daily Session`;
+        }
     }
 
-    // Update Tag Datalist
     if (window.getUniqueTags) updateTagList();
     else updateTagList();
+}
+
+function renderFocusWidget() {
+    const db = Storage.getDB();
+    const container = document.getElementById('active-tags-list');
+    if (!container) return; // Guard
+
+    const activeTags = db.settings.activeFilter || [];
+
+    container.innerHTML = '';
+    activeTags.forEach(t => {
+        const chip = document.createElement('div');
+        chip.className = 'tag-chip';
+        chip.innerHTML = `${t} <span onclick="app.removeFocusTag('${t}')">×</span>`;
+        container.appendChild(chip);
+    });
+}
+
+function handleFocusInput(val) {
+    const db = Storage.getDB();
+    const dropdown = document.getElementById('focus-suggestions');
+    if (!dropdown) return;
+
+    if (!val && val !== "") {
+        dropdown.classList.add('hidden');
+        return;
+    }
+
+    const q = val.toLowerCase();
+
+    // Collect all unique tags
+    const allTags = new Set();
+    db.words.forEach(w => {
+        if (w.tags) w.tags.forEach(t => allTags.add(t));
+    });
+
+    const activeTags = db.settings.activeFilter || [];
+
+    // Filter suggestions: Match query AND not already active
+    const suggestions = Array.from(allTags).filter(t =>
+        t.toLowerCase().includes(q) && !activeTags.includes(t)
+    ).sort();
+
+    if (suggestions.length === 0) {
+        dropdown.classList.add('hidden');
+        return;
+    }
+
+    dropdown.innerHTML = '';
+    suggestions.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'tag-option';
+        div.innerText = t;
+        div.onclick = () => app.addFocusTag(t);
+        dropdown.appendChild(div);
+    });
+    dropdown.classList.remove('hidden');
+}
+
+function addFocusTag(tag) {
+    const db = Storage.getDB();
+    let active = db.settings.activeFilter || [];
+    if (!active.includes(tag)) {
+        active.push(tag);
+        // Ensure unique just in case
+        active = [...new Set(active)];
+        db.settings.activeFilter = active;
+        Storage.save();
+
+        // Clear input
+        document.getElementById('focus-input').value = '';
+        document.getElementById('focus-suggestions').classList.add('hidden');
+
+        updateDashboard();
+    }
+}
+
+function removeFocusTag(tag) {
+    const db = Storage.getDB();
+    let active = db.settings.activeFilter || [];
+    active = active.filter(t => t !== tag);
+    db.settings.activeFilter = active;
+    Storage.save();
+    updateDashboard();
 }
 
 function updateTagList() {
@@ -117,17 +239,23 @@ function startSession() {
     // SRS Logic: 
     // 1. Due Today (p.dueDate <= now)
     // 2. New words (no progress)
+    // 3. RESPECT GLOBAL FILTER
+
+    const filterTags = db.settings.activeFilter || [];
 
     sessionQueue = db.words.filter(w => {
-        const p = db.progress[w.id];
+        // 1. Check Filter (OR Logic)
+        if (filterTags.length > 0) {
+            if (!w.tags) return false;
+            const hasTag = filterTags.some(t => w.tags.includes(t));
+            if (!hasTag) return false;
+        }
 
+        const p = db.progress[w.id];
         let isDue = false;
         if (!p) isDue = true; // New
         else if (p.dueDate <= now) isDue = true; // Due
 
-        if (tagFilter) {
-            return isDue && w.tags && w.tags.includes(tagFilter);
-        }
         return isDue;
     });
 
@@ -643,7 +771,11 @@ const app = {
     startRaindropGame: Games.startRaindropGame,
     endRaindropGame: Games.endRaindropGame,
     startCrosswordGame: Games.startCrosswordGame,
-    endCrosswordGame: Games.endCrosswordGame
+    startCrosswordGame: Games.startCrosswordGame,
+    endCrosswordGame: Games.endCrosswordGame,
+
+    // Tag Input Logic
+    handleFocusInput, addFocusTag, removeFocusTag
 };
 
 window.app = app;

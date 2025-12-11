@@ -2,7 +2,8 @@ export const STORAGE_KEY = 'lingoflow_db_v2';
 
 let db = {
     words: [],
-    progress: {} // { [id]: { interval, repetition, easeFactor, dueDate } }
+    progress: {}, // { [id]: { interval, repetition, easeFactor, dueDate } }
+    settings: { activeFilter: [] } // Array of strings
 };
 
 export function getDB() {
@@ -23,6 +24,13 @@ export function load() {
             if (!db.words) db.words = [];
             if (!db.progress) db.progress = {};
             if (!db.stats) db.stats = { streak: 0, lastReviewDate: null };
+            if (!db.settings) db.settings = { activeFilter: [] };
+            // Migration: Ensure array
+            if (db.settings.activeFilter && !Array.isArray(db.settings.activeFilter)) {
+                db.settings.activeFilter = [db.settings.activeFilter];
+            } else if (!db.settings.activeFilter) {
+                db.settings.activeFilter = [];
+            }
         } catch (e) {
             console.error("Corrupt DB", e);
         }
