@@ -1616,6 +1616,259 @@
                 font-size: 1.5rem !important;
             }
         }
+
+        /* --- DESKTOP LAYOUT (>= 768px) --- */
+        @media (min-width: 768px) {
+            body {
+                flex-direction: row;
+                /* Fallback */
+                display: grid;
+                grid-template-columns: 250px 1fr;
+                grid-template-areas: "nav content";
+                align-items: start;
+                justify-content: stretch;
+                overflow: hidden;
+                /* Main scroll handled by regions */
+            }
+
+            /* Background Pattern for Desktop */
+            body {
+                background-color: #0f172a;
+                background-image:
+                    radial-gradient(circle at 15% 50%, rgba(129, 140, 248, 0.08) 0%, transparent 25%),
+                    radial-gradient(circle at 85% 30%, rgba(45, 212, 191, 0.08) 0%, transparent 25%);
+            }
+
+            #desktop-sidebar {
+                grid-area: nav;
+                display: flex !important;
+                flex-direction: column;
+                height: 100vh;
+                background: rgba(15, 23, 42, 0.6);
+                backdrop-filter: blur(20px);
+                border-right: 1px solid rgba(255, 255, 255, 0.05);
+                padding: 32px 20px;
+                z-index: 100;
+                position: relative;
+            }
+
+            #main-content {
+                grid-area: content;
+                height: 100vh;
+                overflow-y: auto;
+                position: relative;
+                padding: 40px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                /* Custom Scrollbar for content */
+                scrollbar-width: thin;
+                scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+            }
+
+            /* Responsive Content Widths */
+            .glass-panel {
+                width: 100%;
+                max-width: 900px;
+                /* Allow wider dashboard */
+            }
+
+            /* Hide Mobile-specific Headers/Elements if needed */
+            .mobile-only {
+                display: none !important;
+            }
+
+            /* Adjust Orbs to be fixed or contained */
+            .orb {
+                position: fixed;
+            }
+        }
+
+        /* Default Sidebar State (Hidden on Mobile) */
+        #desktop-sidebar {
+            display: none;
+        }
+
+        /* Default Content Wrapper (Display contents for mobile to keep flex behavior) */
+        #main-content {
+            display: contents;
+            /* On mobile, 'contents' makes children behave as direct children of body (flex column)
+               But 'contents' might mess up scrolling if body expects overflow-x: hidden.
+               Actually, body is flex centered. If we use display: contents, children are flex items of body.
+               This preserves exact mobile behavior. */
+        }
+
+        /* --- DASHBOARD GRID (Desktop) --- */
+        @media (min-width: 768px) {
+            #dashboard {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 24px;
+                text-align: left;
+                width: 100%;
+            }
+
+            /* Header (Streak) */
+            .dash-header {
+                grid-column: 2;
+                grid-row: 1;
+                margin-bottom: 0 !important;
+                justify-content: flex-end;
+            }
+
+            .dash-header>*:first-child,
+            .dash-header>.logo-text {
+                display: none !important;
+            }
+
+            /* Stats (Progress) */
+            .dash-stats {
+                grid-column: 1;
+                grid-row: 1;
+                margin-bottom: 0 !important;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            /* Deck Controls */
+            #level-filter-container {
+                grid-column: 1;
+                grid-row: 2;
+                margin-bottom: 0 !important;
+            }
+
+            .tag-input-container {
+                grid-column: 1;
+                grid-row: 3;
+            }
+
+            /* Daily Goal */
+            .hero-section {
+                grid-column: 2;
+                grid-row: 2 / span 2;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            /* Arcade */
+            .arcade-label {
+                grid-column: 1 / span 2;
+                grid-row: 4;
+            }
+
+            .arcade-grid {
+                grid-column: 1 / span 2;
+                grid-row: 5;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+            }
+
+            /* Footer */
+            .footer-actions {
+                grid-column: 1 / span 2;
+                grid-row: 6;
+                justify-content: center;
+            }
+
+            /* DICTIONARY SPLIT VIEW (Desktop) */
+            #dictionary-screen {
+                overflow: hidden !important;
+                /* Managed by panes */
+            }
+
+            #dict-left-pane,
+            #dict-right-pane {
+                height: 100%;
+                overflow-y: auto;
+                scrollbar-width: thin;
+            }
+
+            #dict-left-pane {
+                border-right: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            /* REVIEW SCREEN DESKTOP */
+            #review-container {
+                max-width: 1000px;
+                display: flex;
+                flex-direction: row;
+                gap: 40px;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+                height: 100%;
+            }
+
+            .scene {
+                width: 600px !important;
+                height: 500px;
+                margin: 0 !important;
+            }
+
+            /* Floating Controls */
+            .controls {
+                flex-direction: column !important;
+                width: auto !important;
+                margin-top: 0 !important;
+                position: static !important;
+                gap: 16px;
+                order: 2;
+                /* Right side */
+            }
+
+            .btn-review {
+                width: 140px;
+                border-radius: 12px !important;
+                padding-left: 16px;
+                text-align: left;
+                position: relative;
+            }
+
+            .btn-review::after {
+                content: attr(data-key);
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-family: monospace;
+                opacity: 0.5;
+                font-size: 0.9rem;
+                background: rgba(0, 0, 0, 0.2);
+                padding: 2px 8px;
+                border-radius: 4px;
+            }
+        }
+
+        /* Default (Mobile) Dictionary Styles override */
+        #dict-left-pane {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        #dict-right-pane {
+            display: none;
+        }
+
+        /* SAFE AREA SUPPORT */
+        .card-scroll-area,
+        #dict-left-pane,
+        #dict-right-pane,
+        #main-content {
+            padding-bottom: env(safe-area-inset-bottom) !important;
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+
+        /* Ensure bottom buttons aren't covered */
+        .footer-actions {
+            margin-bottom: env(safe-area-inset-bottom);
+        }
     </style>
 </head>
 
@@ -1623,329 +1876,351 @@
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
 
-    <!-- LIBRARY -->
-    <div id="library-screen" class="hidden"
-        style="width:100%; display:flex; flex-direction:column; align-items:center; padding-top:40px;">
-        <h1 style="color:var(--text-main); margin-bottom:10px;">Select a Course</h1>
-        <p style="color:var(--text-muted); margin-bottom:30px;">Choose a deck to start learning.</p>
-        <div id="library-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">
-            <!-- Decks injected here -->
+    <!-- DESKTOP SIDEBAR -->
+    <nav id="desktop-sidebar">
+        <div class="logo-area" style="margin-bottom: 40px; text-align: left;">
+            <div class="logo-text" style="font-size: 2rem;">LingoFlow</div>
         </div>
-    </div>
 
-    <!-- DASHBOARD -->
-    <div id="dashboard" class="glass-panel" style="position: relative;">
-        <!-- Header -->
-        <!-- Header: Modern Nav Layout -->
+        <div class="nav-links" style="display:flex; flex-direction:column; gap:16px;">
+            <button class="nav-btn" onclick="app.goHome()"
+                style="justify-content: flex-start; width: 100%; border: none;">
+                <span>🏠</span> <span style="font-size:1rem;">Dashboard</span>
+            </button>
+            <button class="nav-btn" onclick="app.openLibrary()"
+                style="justify-content: flex-start; width: 100%; border: none;">
+                <span>📚</span> <span style="font-size:1rem;">Courses</span>
+            </button>
+            <button class="nav-btn" onclick="app.openDictionary()"
+                style="justify-content: flex-start; width: 100%; border: none;">
+                <span>📖</span> <span style="font-size:1rem;">Dictionary</span>
+            </button>
+        </div>
+
         <div
-            style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 100%; margin-bottom: 32px; position: relative;">
+            style="margin-top:auto; color: var(--text-muted); font-size: 0.8rem; text-align: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+            <p style="margin:0">LingoFlow Desktop</p>
+        </div>
+    </nav>
 
-            <!-- Left: Navigation -->
-            <div style="justify-self: start;">
-                <button onclick="app.openLibrary()" class="nav-btn">
-                    <span style="font-size: 1.1rem;">📚</span>
-                    <span class="nav-label">Courses</span>
+    <!-- MAIN CONTENT WRAPPER -->
+    <main id="main-content">
+
+        <!-- LIBRARY -->
+        <div id="library-screen" class="hidden"
+            style="width:100%; display:flex; flex-direction:column; align-items:center; padding-top:40px;">
+            <h1 style="color:var(--text-main); margin-bottom:10px;">Select a Course</h1>
+            <p style="color:var(--text-muted); margin-bottom:30px;">Choose a deck to start learning.</p>
+            <div id="library-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+                <!-- Decks injected here -->
+            </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="glass-panel" style="position: relative;">
+            <!-- Header -->
+            <!-- Header: Modern Nav Layout -->
+            <div class="dash-header"
+                style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 100%; margin-bottom: 32px; position: relative;">
+
+                <!-- Left: Navigation -->
+                <div style="justify-self: start;">
+                    <button onclick="app.openLibrary()" class="nav-btn">
+                        <span style="font-size: 1.1rem;">📚</span>
+                        <span class="nav-label">Courses</span>
+                    </button>
+                </div>
+
+                <!-- Center: Brand -->
+                <div class="logo-text" style="font-size: 2rem; justify-self: center; letter-spacing: -0.5px;">
+                    LingoFlow
+                </div>
+
+                <!-- Right: Stats -->
+                <div style="justify-self: end;">
+                    <div class="streak-pill">
+                        <span style="font-size: 1.1rem;">🔥</span>
+                        <span id="streak-val" style="font-weight: 700; font-family: 'Outfit';">0</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Level Filter -->
+            <div id="level-filter-container" class="level-selector-row">
+                <!-- Buttons injected by JS -->
+            </div>
+
+            <!-- Focus/Tag Input -->
+            <div class="tag-input-container">
+                <div class="tag-input-wrapper" onclick="document.getElementById('focus-input').focus()">
+                    <div id="active-tags-list" style="display:contents"></div>
+                    <input type="text" id="focus-input" class="tag-input-field" placeholder="Filter by tag..."
+                        autocomplete="off">
+                </div>
+                <div id="focus-suggestions" class="tag-dropdown hidden"></div>
+            </div>
+
+            <!-- Hero: Daily Goal -->
+            <div class="hero-section">
+                <div class="daily-circle">
+                    <div class="daily-val" id="due-val">0</div>
+                    <div class="daily-label">Cards Due</div>
+                </div>
+
+                <button class="btn-primary" id="btn-start" onclick="app.startSession()"
+                    style="width: 100%; padding: 20px; font-size: 1.2rem;">
+                    <span>▶</span> Start Daily Session
                 </button>
             </div>
 
-            <!-- Center: Brand -->
-            <div class="logo-text" style="font-size: 2rem; justify-self: center; letter-spacing: -0.5px;">
-                LingoFlow
-            </div>
-
-            <!-- Right: Stats -->
-            <div style="justify-self: end;">
-                <div class="streak-pill">
-                    <span style="font-size: 1.1rem;">🔥</span>
-                    <span id="streak-val" style="font-weight: 700; font-family: 'Outfit';">0</span>
+            <!-- Stats -->
+            <div class="dash-stats" style="width: 100%; margin-bottom: 24px;">
+                <div
+                    style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+                    <span>Total Mastery</span>
+                    <span id="progress-text">0%</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-fill" id="total-progress"></div>
                 </div>
             </div>
-        </div>
 
-
-        <!-- Level Filter -->
-        <div id="level-filter-container" class="level-selector-row">
-            <!-- Buttons injected by JS -->
-        </div>
-
-        <!-- Focus/Tag Input -->
-        <div class="tag-input-container">
-            <div class="tag-input-wrapper" onclick="document.getElementById('focus-input').focus()">
-                <div id="active-tags-list" style="display:contents"></div>
-                <input type="text" id="focus-input" class="tag-input-field" placeholder="Filter by tag..."
-                    autocomplete="off">
-            </div>
-            <div id="focus-suggestions" class="tag-dropdown hidden"></div>
-        </div>
-
-        <!-- Hero: Daily Goal -->
-        <div class="hero-section">
-            <div class="daily-circle">
-                <div class="daily-val" id="due-val">0</div>
-                <div class="daily-label">Cards Due</div>
-            </div>
-
-            <button class="btn-primary" id="btn-start" onclick="app.startSession()"
-                style="width: 100%; padding: 20px; font-size: 1.2rem;">
-                <span>▶</span> Start Daily Session
-            </button>
-        </div>
-
-        <!-- Stats -->
-        <div style="width: 100%; margin-bottom: 24px;">
-            <div
-                style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-                <span>Total Mastery</span>
-                <span id="progress-text">0%</span>
-            </div>
-            <div class="progress-container">
-                <div class="progress-fill" id="total-progress"></div>
-            </div>
-        </div>
-
-        <!-- Arcade -->
-        <div style="width: 100%; text-align: left; margin-bottom: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 1px;
+            <!-- Arcade -->
+            <div class="arcade-label" style="width: 100%; text-align: left; margin-bottom: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 1px;
             font-size: 0.8rem; text-transform: uppercase;">Practice Arcade</div>
-        <div class="arcade-grid">
-            <div class="game-card" onclick="app.startMemoryGame()">
-                <div class="game-icon">🧩</div>
-                <div class="game-title">Memory</div>
-            </div>
-            <div class="game-card" onclick="app.startRaindropGame()">
-                <div class="game-icon">🌧</div>
-                <div class="game-title">Raindrop</div>
-            </div>
-            <div class="game-card" onclick="app.startCrosswordGame()">
-                <div class="game-icon">✏️</div>
-                <div class="game-title">Crossword</div>
-            </div>
-            <div class="game-card" onclick="app.openDictionary()">
-                <div class="game-icon">📖</div>
-                <div class="game-title">Dictionary</div>
-            </div>
-        </div>
-
-        <!-- Footer Actions -->
-        <div style="display: flex; justify-content: center; gap: 16px; margin-top: 24px;">
-            <button class="btn-ghost" style="padding: 10px;" onclick="app.backup()" title="Backup">
-                <span style="font-size: 1.2rem;">💾</span>
-            </button>
-            <button class="btn-ghost" style="padding: 10px;" onclick="app.fetchCentralVocabulary(true)"
-                title="Update Deck">
-                <span style="font-size: 1.2rem;">🔄</span>
-            </button>
-            <button class="btn-ghost" style="padding: 10px;" onclick="app.hardReset()" title="Hard Reset"
-                style="color: var(--error);">
-                <span style="font-size: 1.2rem;">🗑</span>
-            </button>
-        </div>
-
-        <!-- HIDDEN TAG FILTER FOR BACKWARD COMPATIBILITY (until app.js updated) -->
-        <input type="hidden" id="tag-filter" value="">
-        <datalist id="tag-suggestions"></datalist>
-    </div>
-
-    <!-- MEMORY GAME SCREEN -->
-    <div id="memory-game-screen" class="hidden">
-        <div class="memory-header">
-            <button class="btn-ghost" onclick="app.endMemoryGame()">Exit</button>
-            <div style="font-size: 1.2rem; font-weight: 700;">Moves: <span id="mem-moves">0</span></div>
-        </div>
-        <div class="memory-grid" id="memory-grid">
-            <!-- Tiles injected here -->
-        </div>
-    </div>
-
-    <!-- RAINDROP GAME SCREEN -->
-    <div id="raindrop-game-screen" class="hidden">
-        <!-- Game Canvas/Area -->
-        <div id="rain-area">
-            <!-- Drops injected here -->
-        </div>
-
-        <!-- Ground / Input Area -->
-        <div class="rain-ui">
-            <div
-                style="display:flex; justify-content:space-between; width:100%; max-width:600px; margin-bottom:10px; color:white; font-weight:700;">
-                <div class="rain-stats">SCORE: <span id="rain-score">0</span></div>
-                <div class="rain-stats">LIVES: <span id="rain-lives">❤️❤️❤️</span></div>
-                <button class="btn-mini" onclick="app.endRaindropGame()"
-                    style="background:rgba(255,0,0,0.3);">Exit</button>
-            </div>
-
-            <input type="text" id="rain-input" class="rain-input" placeholder="Type answer..." autocomplete="off">
-        </div>
-    </div>
-
-    <!-- CROSSWORD GAME SCREEN -->
-    <div id="crossword-game-screen" class="hidden">
-        <div class="cw-header">
-            <h2 style="color:var(--bg-gradient); margin:0;">Crossword</h2>
-            <button class="btn-ghost" onclick="app.endCrosswordGame()"
-                style="color:#ef4444; border-color: #ef4444;">Exit</button>
-        </div>
-        <div class="cw-container">
-            <div id="cw-grid" class="cw-grid"></div>
-            <div class="cw-clues">
-                <div class="clue-group">
-                    <h3>Across</h3>
-                    <div id="clues-across"></div>
+            <div class="arcade-grid">
+                <div class="game-card" onclick="app.startMemoryGame()">
+                    <div class="game-icon">🧩</div>
+                    <div class="game-title">Memory</div>
                 </div>
-                <div class="clue-group">
-                    <h3>Down</h3>
-                    <div id="clues-down"></div>
+                <div class="game-card" onclick="app.startRaindropGame()">
+                    <div class="game-icon">🌧</div>
+                    <div class="game-title">Raindrop</div>
+                </div>
+                <div class="game-card" onclick="app.startCrosswordGame()">
+                    <div class="game-icon">✏️</div>
+                    <div class="game-title">Crossword</div>
+                </div>
+                <div class="game-card" onclick="app.openDictionary()">
+                    <div class="game-icon">📖</div>
+                    <div class="game-title">Dictionary</div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- DICTIONARY SCREEN -->
-    <div id="dictionary-screen" class="glass-panel hidden" style="padding:0; overflow-y: auto;">
-        <div class="dict-header">
-            <button class="btn-icon" onclick="app.goHome()">
-                <span>←</span>
-            </button>
-            <div class="search-container">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="dict-search" placeholder="Search words..." autocomplete="off">
+            <!-- Footer Actions -->
+            <div class="footer-actions" style="display: flex; justify-content: center; gap: 16px; margin-top: 24px;">
+                <button class="btn-ghost" style="padding: 10px;" onclick="app.backup()" title="Backup">
+                    <span style="font-size: 1.2rem;">💾</span>
+                </button>
+                <button class="btn-ghost" style="padding: 10px;" onclick="app.fetchCentralVocabulary(true)"
+                    title="Update Deck">
+                    <span style="font-size: 1.2rem;">🔄</span>
+                </button>
+                <button class="btn-ghost" style="padding: 10px;" onclick="app.hardReset()" title="Hard Reset"
+                    style="color: var(--error);">
+                    <span style="font-size: 1.2rem;">🗑</span>
+                </button>
             </div>
-            <!-- Filter Dropdown Placeholder (could be added later if specs detailed) -->
+
+            <!-- HIDDEN TAG FILTER FOR BACKWARD COMPATIBILITY (until app.js updated) -->
+            <input type="hidden" id="tag-filter" value="">
+            <datalist id="tag-suggestions"></datalist>
         </div>
 
-        <div id="dict-list" class="dict-list">
-            <!-- List injected here -->
+        <!-- MEMORY GAME SCREEN -->
+        <div id="memory-game-screen" class="hidden">
+            <div class="memory-header">
+                <button class="btn-ghost" onclick="app.endMemoryGame()">Exit</button>
+                <div style="font-size: 1.2rem; font-weight: 700;">Moves: <span id="mem-moves">0</span></div>
+            </div>
+            <div class="memory-grid" id="memory-grid">
+                <!-- Tiles injected here -->
+            </div>
         </div>
-    </div>
 
-    <!-- REVIEW SCREEN -->
-    <div id="review-screen" class="hidden" style="width:100%; height:100vh; position:relative; overflow:visible;">
-        <div id="review-container">
-            <!-- Header for Exit -->
-            <div
-                style="width:var(--card-w); display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-                <div style="color:var(--text-muted);">Session Progress: <span id="progress-indicator">1 / 10</span>
+        <!-- RAINDROP GAME SCREEN -->
+        <div id="raindrop-game-screen" class="hidden">
+            <!-- Game Canvas/Area -->
+            <div id="rain-area">
+                <!-- Drops injected here -->
+            </div>
+
+            <!-- Ground / Input Area -->
+            <div class="rain-ui">
+                <div
+                    style="display:flex; justify-content:space-between; width:100%; max-width:600px; margin-bottom:10px; color:white; font-weight:700;">
+                    <div class="rain-stats">SCORE: <span id="rain-score">0</span></div>
+                    <div class="rain-stats">LIVES: <span id="rain-lives">❤️❤️❤️</span></div>
+                    <button class="btn-mini" onclick="app.endRaindropGame()"
+                        style="background:rgba(255,0,0,0.3);">Exit</button>
                 </div>
-                <button class="btn-ghost" style="padding:8px 16px;" onclick="app.goHome()">Exit</button>
+
+                <input type="text" id="rain-input" class="rain-input" placeholder="Type answer..." autocomplete="off">
             </div>
+        </div>
 
-            <div class="scene">
-                <div class="card" id="active-card">
-                    <!-- FRONT -->
-                    <div class="card-face card-front" style="pointer-events: auto;" onclick="app.flip()">
-                        <button id="hint-btn" class="btn-mini"
-                            style="position:absolute; top:20px; left:20px; z-index:10;"
-                            onclick="event.stopPropagation(); window.app.showHint()">💡 Hint</button>
-                        <button class="tts-btn" onclick="event.stopPropagation(); app.speak()">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                            </svg>
-                        </button>
-
-                        <div id="card-emoji"></div>
-                        <div id="card-word" class="word-display">Wort</div>
-                        <div id="card-phonetics"></div>
-                        <div id="card-pos" class="pos-badge">Noun</div>
-
-                        <div class="tap-hint">Tap to Flip</div>
+        <!-- CROSSWORD GAME SCREEN -->
+        <div id="crossword-game-screen" class="hidden">
+            <div class="cw-header">
+                <h2 style="color:var(--bg-gradient); margin:0;">Crossword</h2>
+                <button class="btn-ghost" onclick="app.endCrosswordGame()"
+                    style="color:#ef4444; border-color: #ef4444;">Exit</button>
+            </div>
+            <div class="cw-container">
+                <div id="cw-grid" class="cw-grid"></div>
+                <div class="cw-clues">
+                    <div class="clue-group">
+                        <h3>Across</h3>
+                        <div id="clues-across"></div>
                     </div>
+                    <div class="clue-group">
+                        <h3>Down</h3>
+                        <div id="clues-down"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                    <!-- BACK -->
-                    <div class="card-face card-back" style="pointer-events: auto;" onclick="app.flip()">
-                        <div class="card-scroll-area">
+        <!-- DICTIONARY SCREEN -->
+        <div id="dictionary-screen" class="glass-panel hidden" style="padding:0; overflow: hidden;">
 
-                            <!-- Main Definition / Translation -->
-                            <div id="card-def"
-                                style="font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 16px; color: var(--text-main);">
-                                Translation
-                            </div>
+            <!-- LEFT PANE -->
+            <div id="dict-left-pane">
+                <div class="dict-header">
+                    <button class="btn-icon" onclick="app.goHome()">
+                        <span>←</span>
+                    </button>
+                    <div class="search-container">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="dict-search" placeholder="Search words..." autocomplete="off">
+                    </div>
+                </div>
 
-                            <!-- New Rich Info Container -->
-                            <div id="card-rich-info" class="back-section"
-                                style="font-size:0.9rem; color:var(--text-muted);">
-                                <!-- Injected via JS -->
-                            </div>
+                <div id="dict-list" class="dict-list">
+                    <!-- List injected here -->
+                </div>
+            </div>
 
-                            <div class="back-section">
-                                <div class="back-label">Example</div>
-                                <div class="example-block">
-                                    <div class="ex-line">
-                                        <span class="ex-flag">🇩🇪</span>
-                                        <span id="card-ex-de">German example sentence.</span>
-                                    </div>
-                                    <div class="ex-line">
-                                        <span class="ex-flag">🇬🇧</span>
-                                        <span class="ex-sub" id="card-ex-en">English translation.</span>
+            <!-- RIGHT PANE -->
+            <div id="dict-right-pane">
+                <div id="dict-detail-container" style="height:100%;">
+                    <div
+                        style="height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-muted); flex-direction: column; gap: 16px; opacity: 0.5;">
+                        <span style="font-size: 3rem;">📖</span>
+                        <span>Select a word to view details</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- REVIEW SCREEN -->
+        <div id="review-screen" class="hidden" style="width:100%; height:100vh; position:relative; overflow:visible;">
+            <div id="review-container">
+                <!-- Header for Exit -->
+                <div
+                    style="width:var(--card-w); display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+                    <div style="color:var(--text-muted);">Session Progress: <span id="progress-indicator">1 / 10</span>
+                    </div>
+                    <button class="btn-ghost" style="padding:8px 16px;" onclick="app.goHome()">Exit</button>
+                </div>
+
+                <div class="scene">
+                    <div class="card" id="active-card">
+                        <!-- FRONT -->
+                        <div class="card-face card-front" style="pointer-events: auto;" onclick="app.flip()">
+                            <button id="hint-btn" class="btn-mini"
+                                style="position:absolute; top:20px; left:20px; z-index:10;"
+                                onclick="event.stopPropagation(); window.app.showHint()">💡 Hint</button>
+                            <button class="tts-btn" onclick="event.stopPropagation(); app.speak()">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                </svg>
+                            </button>
+
+                            <div id="card-emoji"></div>
+                            <div id="card-word" class="word-display">Wort</div>
+                            <div id="card-phonetics"></div>
+                            <div id="card-pos" class="pos-badge">Noun</div>
+
+                            <div class="tap-hint">Tap to Flip</div>
+                        </div>
+
+                        <!-- BACK -->
+                        <div class="card-face card-back" style="pointer-events: auto;" onclick="app.flip()">
+                            <div class="card-scroll-area">
+
+                                <!-- Main Definition / Translation -->
+                                <div id="card-def"
+                                    style="font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 16px; color: var(--text-main);">
+                                    Translation
+                                </div>
+
+                                <!-- New Rich Info Container -->
+                                <div id="card-rich-info" class="back-section"
+                                    style="font-size:0.9rem; color:var(--text-muted);">
+                                    <!-- Injected via JS -->
+                                </div>
+
+                                <div class="back-section">
+                                    <div class="back-label">Example</div>
+                                    <div class="example-block">
+                                        <div class="ex-line">
+                                            <span class="ex-flag">🇩🇪</span>
+                                            <span id="card-ex-de">German example sentence.</span>
+                                        </div>
+                                        <div class="ex-line">
+                                            <span class="ex-flag">🇬🇧</span>
+                                            <span class="ex-sub" id="card-ex-en">English translation.</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Controls (Now inside container, right below card) -->
-            <!-- Controls (Now inside container, right below card) -->
-            <div class="controls" style="opacity: 0; transition: opacity 0.2s; margin-top: -10px; z-index: 100;">
-                <button class="btn-review"
-                    style="background:#ef4444; border-right:1px solid rgba(0,0,0,0.1); border-top-left-radius: 20px; border-bottom-left-radius: 20px;"
-                    onclick="window.app.answer(1)">Again</button>
-                <button class="btn-review" style="background:#f59e0b; border-right:1px solid rgba(0,0,0,0.1);"
-                    onclick="window.app.answer(2)">Hard</button>
-                <button class="btn-review" style="background:#10b981; border-right:1px solid rgba(0,0,0,0.1);"
-                    onclick="window.app.answer(3)">Good</button>
-                <button class="btn-review"
-                    style="background:#3b82f6; border-top-right-radius: 20px; border-bottom-right-radius: 20px;"
-                    onclick="window.app.answer(4)">Easy</button>
-            </div>
+                <!-- Controls (Now inside container, right below card) -->
+                <!-- Controls (Now inside container, right below card) -->
+                <div class="controls" style="opacity: 0; transition: opacity 0.2s; margin-top: -10px; z-index: 100;">
+                    <button class="btn-review" data-key="1"
+                        style="background:#ef4444; border-right:1px solid rgba(0,0,0,0.1); border-top-left-radius: 20px; border-bottom-left-radius: 20px;"
+                        onclick="window.app.answer(1)">Again</button>
+                    <button class="btn-review" data-key="2"
+                        style="background:#f59e0b; border-right:1px solid rgba(0,0,0,0.1);"
+                        onclick="window.app.answer(2)">Hard</button>
+                    <button class="btn-review" data-key="3"
+                        style="background:#10b981; border-right:1px solid rgba(0,0,0,0.1);"
+                        onclick="window.app.answer(3)">Good</button>
+                    <button class="btn-review" data-key="4"
+                        style="background:#3b82f6; border-top-right-radius: 20px; border-bottom-right-radius: 20px;"
+                        onclick="window.app.answer(4)">Easy</button>
+                </div>
 
-            <!-- Hint Toast (Renamed) -->
-            <div id="hint-toast">
-                <span id="hint-msg">Hint Message</span>
-            </div>
+                <div id="desktop-flip-hint" class="hidden-mobile"
+                    style="margin-top:20px; color:var(--text-muted); font-size:0.9rem; opacity:0; transition:opacity 0.3s;">
+                    Press <span
+                        style="border:1px solid rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px; font-family:monospace;">Space</span>
+                    to Flip
+                </div>
 
+                <!-- Hint Toast (Renamed) -->
+                <div id="hint-toast">
+                    <span id="hint-msg">Hint Message</span>
+                </div>
+
+            </div>
         </div>
-    </div>
+    </main>
 
     <!-- DETAIL MODAL (Moved to body level and hidden by default) -->
+    <!-- Content injected dynamically by dictionary.js -->
     <div id="detail-modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-word" id="detail-word">Word</div>
-                <div class="modal-def" id="detail-def">Definition</div>
-            </div>
-
-            <!-- EXAMPLES -->
-            <div>
-                <div class="section-title">Examples</div>
-                <div id="detail-examples-list"></div>
-                <button class="btn-ghost" style="padding: 8px; font-size: 0.85rem; width: 100%; margin-top: 8px;"
-                    onclick="app.addDetailExample()">
-                    + Add Example
-                </button>
-            </div>
-
-            <!-- TAGS -->
-            <div>
-                <div class="section-title">Tags</div>
-                <div class="chip-container" id="detail-tags"></div>
-                <input type="text" class="input-bare" id="detail-tag-input" placeholder="Type tag & hit Enter"
-                    onkeydown="if(event.key==='Enter') app.addDetailTag(this.value)">
-            </div>
-
-            <!-- NOTES -->
-            <div>
-                <div class="section-title">Notes</div>
-                <textarea class="input-bare" id="detail-notes" rows="4"
-                    placeholder="Add mnemonics or notes..."></textarea>
-            </div>
-
-            <!-- FOOTER -->
-            <div style="display: flex; gap: 12px; margin-top: 10px;">
-                <button class="btn-ghost" style="flex:1;" onclick="app.closeDetail()">Cancel</button>
-                <button class="btn-primary" style="flex:1;" onclick="app.saveDetail()">Save Changes</button>
-            </div>
+        <div class="modal-content" id="detail-modal-content">
+            <!-- Injected -->
         </div>
     </div>
 

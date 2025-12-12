@@ -66,7 +66,24 @@ export function startSession() {
     document.getElementById('review-screen').classList.remove('hidden');
 
     renderCard();
+
+    // Attach Keyboard Listener
+    document.removeEventListener('keydown', onKeyDown);
+    document.addEventListener('keydown', onKeyDown);
     return true;
+}
+
+function onKeyDown(e) {
+    if (document.getElementById('review-screen').classList.contains('hidden')) return;
+
+    if (e.code === 'Space') {
+        e.preventDefault();
+        if (!isFlipped) flip();
+    } else if (isFlipped) {
+        if (['1', '2', '3', '4'].includes(e.key)) {
+            answer(parseInt(e.key));
+        }
+    }
 }
 
 // State for hints
@@ -88,9 +105,13 @@ export function renderCard() {
     isFlipped = false;
     hintStage = 0; // Reset hint cycle
 
-    // ... [Rest of renderCard existing logic] ...
     const cardEl = document.getElementById('active-card');
-    // ... [We need to capture the function correctly] ...
+
+    // Reset Desktop Hint
+    const dHint = document.getElementById('desktop-flip-hint');
+    if (dHint) dHint.style.opacity = '1';
+
+    // ... [Rest of renderCard existing logic] ...
     if (cardEl) {
         cardEl.classList.remove('flipped');
 
@@ -268,25 +289,36 @@ export function showHint() {
 
 export function flip() {
     isFlipped = !isFlipped;
+
     const cardEl = document.getElementById('active-card');
-    if (cardEl) cardEl.classList.toggle('flipped');
+    if (cardEl) {
+        if (isFlipped) cardEl.classList.add('flipped');
+        else cardEl.classList.remove('flipped');
+    }
+
+    const ctrls = document.querySelector('.controls');
+    const dHint = document.getElementById('desktop-flip-hint');
+    const hintBtn = document.getElementById('hint-btn');
 
     if (isFlipped) {
         // Show Controls
-        const ctrls = document.querySelector('.controls');
         if (ctrls) {
             ctrls.style.opacity = '1';
             ctrls.style.pointerEvents = 'auto';
         }
-
-        // Hide Hint Button (User request: no point showing if flipped)
-        const hintBtn = document.getElementById('hint-btn');
+        // Hide Hints
+        if (dHint) dHint.style.opacity = '0';
         if (hintBtn) hintBtn.style.display = 'none';
 
     } else {
-        // Unflip (if toggled back? though usually we don't allow unflip in simple SRS)
-        // But if we did:
-        const hintBtn = document.getElementById('hint-btn');
+        // Hide Controls
+        if (ctrls) {
+            ctrls.style.opacity = '0';
+            ctrls.style.pointerEvents = 'none';
+        }
+
+        // Show Hints
+        if (dHint) dHint.style.opacity = '1';
         if (hintBtn) hintBtn.style.display = 'block';
     }
 }

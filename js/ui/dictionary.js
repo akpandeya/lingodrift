@@ -25,10 +25,10 @@ export function init() {
     }
 
     // Infinite Scroll
-    const screenEl = document.getElementById('dictionary-screen');
-    if (screenEl) {
-        screenEl.addEventListener('scroll', () => {
-            if (screenEl.scrollTop + screenEl.clientHeight >= screenEl.scrollHeight - 100) {
+    const scrollEl = document.getElementById('dict-left-pane') || document.getElementById('dictionary-screen');
+    if (scrollEl) {
+        scrollEl.addEventListener('scroll', () => {
+            if (scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 100) {
                 loadMore();
             }
         });
@@ -203,6 +203,41 @@ function getPOSColor(tags) {
 
 // --- Detail Modal Logic ---
 
+function getDetailStructure() {
+    return `
+        <div class="modal-content" style="border:none; box-shadow:none; height:100%; display:flex; flex-direction:column; gap:20px; background: transparent;">
+            <div class="modal-header">
+                <div class="modal-word" id="detail-word"></div>
+                <div class="modal-def" id="detail-def"></div>
+            </div>
+            <!-- EXAMPLES -->
+            <div>
+                <div class="section-title">Examples</div>
+                <div id="detail-examples-list"></div>
+                <button class="btn-ghost" style="padding: 8px; font-size: 0.85rem; width: 100%; margin-top: 8px;"
+                    onclick="app.addDetailExample()">+ Add Example</button>
+            </div>
+            <!-- TAGS -->
+            <div>
+                <div class="section-title">Tags</div>
+                <div class="chip-container" id="detail-tags"></div>
+                <input type="text" class="input-bare" id="detail-tag-input" placeholder="Type tag & hit Enter"
+                    onkeydown="if(event.key==='Enter') app.addDetailTag(this.value)">
+            </div>
+            <!-- NOTES -->
+            <div>
+                <div class="section-title">Notes</div>
+                <textarea class="input-bare" id="detail-notes" rows="4" placeholder="Add mnemonics or notes..."></textarea>
+            </div>
+            <!-- FOOTER -->
+            <div style="display: flex; gap: 12px; margin-top: 10px;">
+                <button class="btn-ghost" style="flex:1;" onclick="app.closeDetail()">Cancel</button>
+                <button class="btn-primary" style="flex:1;" onclick="app.saveDetail()">Save Changes</button>
+            </div>
+        </div>
+    `;
+}
+
 export function openDetail(id) {
     const word = store.state.words.find(w => w.id === id);
     if (!word) return;
@@ -216,20 +251,54 @@ export function openDetail(id) {
         currentDetailExamples.push(word.ex_de);
     }
 
-    // Populate UI
-    document.getElementById('detail-word').innerText = word.word;
-    document.getElementById('detail-def').innerText = word.def;
+    // Determine Container
+    const isDesktop = window.innerWidth >= 768;
+    let container;
+
+    if (isDesktop) {
+        container = document.getElementById('dict-detail-container');
+        // Ensure Mobile Modal is hidden/empty
+        const mContent = document.getElementById('detail-modal-content');
+        if (mContent) mContent.innerHTML = '';
+        document.getElementById('detail-modal').style.display = 'none';
+
+        // Show Right Pane if hidden (CSS handles it usually, but good to be sure)
+        const rp = document.getElementById('dict-right-pane');
+        if (rp) rp.style.display = 'block';
+    } else {
+        container = document.getElementById('detail-modal-content');
+        // Clear Desktop Pane
+        const dContainer = document.getElementById('dict-detail-container');
+        if (dContainer) dContainer.innerHTML = '';
+    }
+
+    if (!container) return;
+
+    // Inject Structure
+    container.innerHTML = getDetailStructure();
+
+    // Populate Data
+    const wordEl = document.getElementById('detail-word');
+    if (wordEl) wordEl.innerText = word.word;
+
+    const defEl = document.getElementById('detail-def');
+    if (defEl) defEl.innerText = word.def;
+
     const notesInput = document.getElementById('detail-notes');
     if (notesInput) notesInput.value = word.notes || '';
 
     renderDetailTags();
     renderDetailExamples();
 
-    const m = document.getElementById('detail-modal');
-    if (m) {
-        m.classList.remove('hidden');
-        void m.offsetWidth; // force reflow
-        m.classList.add('visible');
+    // Show View (Mobile only needs toggle)
+    if (!isDesktop) {
+        const m = document.getElementById('detail-modal');
+        if (m) {
+            m.style.display = 'flex';
+            m.classList.remove('hidden');
+            void m.offsetWidth; // force reflow
+            m.classList.add('visible');
+        }
     }
 }
 
@@ -237,7 +306,20 @@ export function closeDetail() {
     const m = document.getElementById('detail-modal');
     if (m) {
         m.classList.remove('visible');
+        setTimeout(() => m.style.display = 'none', 300);
     }
+
+    // Reset Desktop View to Empty State
+    const dContainer = document.getElementById('dict-detail-container');
+    if (dContainer && window.innerWidth >= 768) {
+        dContainer.innerHTML = `
+             <div style="height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-muted); flex-direction: column; gap: 16px; opacity: 0.5;">
+                <span style="font-size: 3rem;">📖</span>
+                <span>Select a word to view details</span>
+            </div>
+         `;
+    }
+
     currentDetailId = null;
 }
 
