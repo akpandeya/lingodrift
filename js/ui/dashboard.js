@@ -26,6 +26,13 @@ export function init() {
     }
 }
 
+export function refreshTagCache() {
+    cachedTags = null; // Invalidate
+    // We could re-fetch available topics here if needed,
+    // but the store getter 'availableTopics' computes it on the fly or memoizes it.
+    // For now, simple invalidation is enough if we use it.
+}
+
 export function update() {
     const state = store.state;
     // We use filteredCards to drive the due count shown on the button

@@ -5,7 +5,8 @@
   "main": "js/app.js",
   "type": "module",
   "scripts": {
-    "test": "mocha tests/*.test.js --require tests/setup.js"
+    "test": "mocha tests/*.test.js --require tests/setup.js",
+    "start": "npx live-server ."
   },
   "devDependencies": {
     "chai": "^5.0.0",

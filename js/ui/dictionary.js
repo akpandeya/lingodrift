@@ -3,6 +3,7 @@
  * Handles word list rendering, searching, and the detail modal.
  */
 import { store } from '../state.js';
+import { analyzeWordStyle } from '../core/grammar.js';
 
 let filteredWords = [];
 const BATCH_SIZE = 50;
@@ -52,20 +53,21 @@ export function open() {
 function refreshData() {
     const list = store.state.words;
     // Default: Sort by word opacity/alphabetical?
-    filteredWords = [...list].sort((a, b) => a.word.localeCompare(b.word));
+    filteredWords = [...list].sort((a, b) => (a.word || '').localeCompare(b.word || ''));
     renderLimit = BATCH_SIZE;
 }
 
 export function filter(query) {
-    const q = query.toLowerCase().trim();
+    const q = (query || '').toLowerCase().trim();
     const list = store.state.words;
 
     if (!q) {
         filteredWords = [...list];
     } else {
         filteredWords = list.filter(w => {
-            const front = w.word.toLowerCase();
-            const back = w.def.toLowerCase();
+            if (!w) return false;
+            const front = (w.word || '').toLowerCase();
+            const back = (w.def || '').toLowerCase();
             const tags = (w.tags || []).join(' ').toLowerCase();
             return front.includes(q) || back.includes(q) || tags.includes(q);
         });
@@ -106,49 +108,80 @@ export function render(append = false) {
     const fragment = document.createDocumentFragment();
 
     for (let i = startIdx; i < count; i++) {
-        const w = filteredWords[i];
-        const card = document.createElement('div');
-        card.className = 'dict-card';
-        // We need a stable way to open details. 
-        // Ideally we don't depend on global 'app.openDetail'.
-        // We will expose openDetail here and let the Router wire it or attach directly.
-        card.onclick = (e) => {
-            if (e.target.closest('.chip-del') || e.target.closest('button')) return;
-            openDetail(w.id);
-        };
+        try {
+            const w = filteredWords[i];
+            if (!w) continue;
 
-        // Color Strip
-        const color = getPOSColor(w.tags);
-        card.style.borderLeftColor = color;
+            const card = document.createElement('div');
+            // Check analyzeWordStyle availability (safety)
+            const style = (typeof analyzeWordStyle === 'function')
+                ? analyzeWordStyle(w.pos || '', w.word || '')
+                : { type: 'other', styleClass: 'style-adv', badgeText: 'Other' };
 
-        // Tags
-        const tagsHtml = (w.tags || []).slice(0, 3).map(t =>
-            `<span class="dict-tag">${t}</span>`
-        ).join('');
+            card.className = `dict-card ${style.styleClass}`; // removed undefined style-card-border
 
-        // Progress Info
-        const p = store.state.progress[w.id];
-        let progBadge = '';
-        if (p) {
-            progBadge = `<span class="marker-lvl">Lvl ${p.repetition}</span>`;
-        } else {
-            progBadge = `<span class="marker-new">New</span>`;
-        }
+            card.onclick = (e) => {
+                if (e.target.closest('.chip-del') || e.target.closest('button')) return;
+                openDetail(w.id);
+            };
 
-        card.innerHTML = `
-            <div class="dict-main">
-                <div class="dict-front">
-                    ${w.word} 
-                    <span class="dict-pos">${w.pos || ''}</span>
-                    ${progBadge}
+            // Force border color via inline variable or direct style
+            let stripeColor = 'var(--color-adv)';
+            if (style.type === 'noun') {
+                if (style.badgeText === 'Der') stripeColor = 'var(--color-masc)';
+                else if (style.badgeText === 'Die') stripeColor = 'var(--color-fem)';
+                else if (style.badgeText === 'Das') stripeColor = 'var(--color-neut)';
+            } else if (style.type === 'verb') stripeColor = 'var(--color-verb)';
+            else if (style.type === 'adj') stripeColor = 'var(--color-adj)';
+
+            card.style.borderLeftColor = stripeColor;
+
+            // Tags
+            const tagsHtml = (w.tags || []).slice(0, 3).map(t =>
+                `<span class="dict-tag">${t}</span>`
+            ).join('');
+
+            // Badge Logic
+            let badgeHtml = '';
+            if (style.type === 'noun') {
+                badgeHtml = `<span class="badge-pill ${style.styleClass}-bg">${style.badgeText}</span>`;
+            } else {
+                badgeHtml = `<span class="badge-outline ${style.styleClass}">${style.badgeText}</span>`;
+            }
+
+            // Clean word
+            let displayWord = w.word || '???';
+            if (style.type === 'noun' && ['Der', 'Die', 'Das'].includes(style.badgeText)) {
+                displayWord = displayWord.replace(new RegExp(`^${style.badgeText}\\s+`), '');
+            }
+
+            // Progress Info (Safe access)
+            const p = store.state.progress[w.id];
+            let progBadge = '';
+            if (p) {
+                progBadge = `<span class="marker-lvl">Lvl ${p.repetition}</span>`;
+            } else {
+                progBadge = `<span class="marker-new">New</span>`;
+            }
+
+            card.innerHTML = `
+                <div class="dict-main">
+                    <div class="dict-front">
+                        ${badgeHtml}
+                        <span class="word-text">${displayWord}</span>
+                        <span class="dict-pos">${w.pos || ''}</span>
+                        ${progBadge}
+                    </div>
+                    <div class="dict-back">${w.def || ''}</div>
                 </div>
-                <div class="dict-back">${w.def}</div>
-            </div>
-            <div class="dict-tags">
-                ${tagsHtml}
-            </div>
-        `;
-        fragment.appendChild(card);
+                <div class="dict-tags">
+                    ${tagsHtml}
+                </div>
+            `;
+            fragment.appendChild(card);
+        } catch (err) {
+            console.error("Error rendering card", err);
+        }
     }
 
     if (append) {

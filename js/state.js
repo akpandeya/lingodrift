@@ -36,6 +36,15 @@ class StateManager {
 
             // Migrations / Safety Checks
             if (!this.state.words) this.state.words = [];
+
+            // CRITICAL FIX: Check if loaded words are stale (missing translation)
+            // If the first word in the list is missing 'translation', we assume the whole list is stale.
+            if (this.state.words.length > 0 && !this.state.words[0].translation) {
+                console.warn("Detected stale data (missing translation). Clearing words to force re-fetch.");
+                this.state.words = []; // Clear to trigger reload
+                this.state.filter.level = null; // Reset filters just in case
+            }
+
             if (!this.state.progress) this.state.progress = {};
             if (!this.state.stats) this.state.stats = defaultState.stats;
             if (!this.state.settings) this.state.settings = defaultState.settings;
@@ -105,9 +114,12 @@ class StateManager {
 
     get filteredCards() {
         return this.state.words.filter(w => {
-            // Level Check
+            // Level Check (Check both 'level' prop and 'tags')
             if (this.state.filter.level) {
-                if (!w.tags || !w.tags.includes(this.state.filter.level)) return false;
+                const lvl = this.state.filter.level;
+                const dateLevel = w.level || '';
+                const hasTag = w.tags && w.tags.includes(lvl);
+                if (dateLevel !== lvl && !hasTag) return false;
             }
             // Topic Check (AND Logic)
             if (this.state.filter.topics.length > 0) {
@@ -124,6 +136,7 @@ class StateManager {
         const levelRegex = /^(A[12]|B[12]|C[12])$/;
         const levels = new Set();
         this.state.words.forEach(w => {
+            if (w.level && levelRegex.test(w.level)) levels.add(w.level);
             if (w.tags) w.tags.forEach(t => {
                 if (levelRegex.test(t)) levels.add(t);
             });
@@ -145,9 +158,6 @@ class StateManager {
     // --- Filter Actions ---
     setFilterLevel(level) {
         this.state.filter.level = level;
-        // We generally don't persist filters permanently? Or should we?
-        // User requested UI, but typically session filters are ephemeral. 
-        // Let's persist them for now so they survive refresh (nice DX).
         this.save();
     }
 
@@ -166,6 +176,44 @@ class StateManager {
     clearFilters() {
         this.state.filter.level = null;
         this.state.filter.topics = [];
+        this.save();
+    }
+
+    async loadDeck(deckConfig) {
+        try {
+            console.log("Loading deck:", deckConfig.title);
+            // Cache Busting: Ensure we get fresh data
+            const url = `${deckConfig.file}?t=${Date.now()}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Failed to load ${deckConfig.file}`);
+
+            const data = await response.json();
+            this.state.words = data;
+
+            // Apply Deck Default Filters
+            if (deckConfig.filter) {
+                this.state.filter = { ...this.state.filter, ...deckConfig.filter };
+            } else {
+                // Reset if no specific filter (optional, but good for "Complete" deck)
+                this.state.filter.level = null;
+            }
+
+            // Save active deck ID
+            localStorage.setItem('active_deck', deckConfig.id);
+            this.save();
+
+            return { success: true, count: data.length };
+        } catch (e) {
+            console.error("Deck Load Error:", e);
+            return { success: false, error: e.message };
+        }
+    }
+
+    /**
+     * Hard Reset: Wipes all data
+     */
+    clear() {
+        this.state = JSON.parse(JSON.stringify(defaultState));
         this.save();
     }
 }

@@ -58,6 +58,10 @@
 
     # Run Tests
     npm test
+
+    # Start Local Server (Hot Reload)
+    npm start
+    # (runs npx live-server .)
     ```
 ## 🧪 Testing
 

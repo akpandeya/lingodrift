@@ -4,6 +4,7 @@
  */
 import { store } from '../state.js';
 import * as SRS from '../core/srs.js';
+import { analyzeWordStyle } from '../core/grammar.js';
 
 let sessionQueue = [];
 let currentIndex = 0;
@@ -25,15 +26,13 @@ export function startSession() {
     // SRS Logic: 
     // 1. Due Today (p.dueDate <= now)
     // 2. New words (no progress)
-    // 3. RESPECT GLOBAL FILTER
+    // 3. RESPECT GLOBAL FILTER (Level/Topics) - Handled by filteredCards getter
 
-    sessionQueue = state.words.filter(w => {
-        // 1. Check Filter (OR Logic)
-        if (filterTags.length > 0) {
-            if (!w.tags) return false;
-            const hasTag = filterTags.some(t => w.tags.includes(t));
-            if (!hasTag) return false;
-        }
+    const candidateWords = store.filteredCards;
+
+    sessionQueue = candidateWords.filter(w => {
+        // We already filtered by Level/Topic in store.filteredCards
+        // Now just check SRS status
 
         const p = state.progress[w.id];
         let isDue = false;
@@ -70,20 +69,52 @@ export function startSession() {
     return true;
 }
 
+// State for hints
+let hintStage = 0;
+
 export function renderCard() {
     if (currentIndex >= sessionQueue.length) {
-        // Session Complete
         if (onSessionUnmount) onSessionUnmount();
         return;
     }
 
     const card = sessionQueue[currentIndex];
+    // DEBUG: Check data integrity
+    console.log("Rendering Card:", card.word, "Translation:", card.translation);
+
     const cleanPos = (card.pos || '').split('#')[0];
 
-    // Reset Flip
+    // Reset State
     isFlipped = false;
+    hintStage = 0; // Reset hint cycle
+
+    // ... [Rest of renderCard existing logic] ...
     const cardEl = document.getElementById('active-card');
-    if (cardEl) cardEl.classList.remove('flipped');
+    // ... [We need to capture the function correctly] ...
+    if (cardEl) {
+        cardEl.classList.remove('flipped');
+
+        // Reset Visual Classes
+        cardEl.className = 'card'; // Reset to base class
+
+        // Analyze for Border (Use new JSON gender field if available, fallback to analysis)
+        if (card.grammar && card.grammar.gender) {
+            const g = card.grammar.gender.toLowerCase();
+            if (g === 'masc') cardEl.classList.add('gender-masc-border');
+            else if (g === 'fem') cardEl.classList.add('gender-fem-border');
+            else if (g === 'neut') cardEl.classList.add('gender-neut-border');
+        } else {
+            // Fallback legacy analysis
+            const style = analyzeWordStyle(card.pos, card.word);
+            if (style.type === 'noun') {
+                if (style.badgeText === 'Der') cardEl.classList.add('gender-masc-border');
+                else if (style.badgeText === 'Die') cardEl.classList.add('gender-fem-border');
+                else if (style.badgeText === 'Das') cardEl.classList.add('gender-neut-border');
+            } else if (style.type === 'verb') {
+                cardEl.classList.add('style-verb-border');
+            }
+        }
+    }
 
     // Controls hidden
     const ctrls = document.querySelector('.controls');
@@ -92,27 +123,138 @@ export function renderCard() {
         ctrls.style.pointerEvents = 'none';
     }
 
-    // Populate
+    // Populate Front
     const wordEl = document.getElementById('card-word');
     if (wordEl) wordEl.innerText = card.word;
 
+    const emojiEl = document.getElementById('card-emoji');
+    if (emojiEl) emojiEl.innerText = card.emoji || '✨';
+
+    const phoneticsEl = document.getElementById('card-phonetics');
+    if (phoneticsEl) phoneticsEl.innerText = card.phonetics || '';
+
+    // Hint Button Visibility
+    const hintBtn = document.getElementById('hint-btn');
+    if (hintBtn) {
+        // Always show, because we fallback to example or message
+        hintBtn.style.display = 'block';
+    }
+
     const posEl = document.getElementById('card-pos');
-    if (posEl) posEl.innerText = cleanPos;
+    // POS from grammar object or root
+    const pos = (card.grammar && card.grammar.pos) ? card.grammar.pos : (card.pos || '');
+    if (posEl) posEl.innerText = pos;
 
-    // Back Side
+    // Back Side - Definition
     const defEl = document.getElementById('card-def');
-    if (defEl) defEl.innerText = card.def;
+    // Map translation or def
+    const definition = card.translation || card.def || "No definition found";
+    if (defEl) defEl.innerText = definition;
 
-    // Examples (using fields for now)
+    // Rich Info Section (Synonyms, Antonyms, Grammar details)
+    const infoContainer = document.getElementById('card-rich-info');
+    if (infoContainer) {
+        infoContainer.innerHTML = ''; // Clear previous
+
+        if (card.learning) {
+            if (card.learning.synonyms && card.learning.synonyms.length > 0) {
+                const synDiv = document.createElement('div');
+                synDiv.className = 'info-row';
+                synDiv.innerHTML = `<span class="info-label">Synonyms:</span> <span>${card.learning.synonyms.join(', ')}</span>`;
+                infoContainer.appendChild(synDiv);
+            }
+            if (card.learning.antonyms && card.learning.antonyms.length > 0) {
+                const antDiv = document.createElement('div');
+                antDiv.className = 'info-row';
+                antDiv.innerHTML = `<span class="info-label">Antonyms:</span> <span>${card.learning.antonyms.join(', ')}</span>`;
+                infoContainer.appendChild(antDiv);
+            }
+        }
+
+        // Grammar Gender
+        if (card.grammar && card.grammar.gender && card.grammar.gender !== 'unknown') {
+            const genderDiv = document.createElement('div');
+            genderDiv.className = 'info-row';
+            genderDiv.innerHTML = `<span class="info-label">Gender:</span> <span style="text-transform:capitalize">${card.grammar.gender}</span>`;
+            infoContainer.appendChild(genderDiv);
+        }
+    }
+
+    // Examples
     const exDeEl = document.getElementById('card-ex-de');
-    if (exDeEl) exDeEl.innerText = card.ex_de || '';
-
     const exEnEl = document.getElementById('card-ex-en');
-    if (exEnEl) exEnEl.innerText = card.ex_en || '';
+
+    // Handle Array of Examples
+    if (card.examples && card.examples.length > 0) {
+        if (exDeEl) exDeEl.innerText = card.examples[0].de;
+        if (exEnEl) exEnEl.innerText = card.examples[0].en;
+    } else {
+        if (exDeEl) exDeEl.innerText = card.ex_de || 'No example available';
+        if (exEnEl) exEnEl.innerText = card.ex_en || '';
+    }
 
     // Progress
     const progEl = document.getElementById('progress-indicator');
     if (progEl) progEl.innerText = `${currentIndex + 1} / ${sessionQueue.length}`;
+}
+
+export function showHint() {
+    const card = sessionQueue[currentIndex];
+    let msg = null;
+    let icon = "💡";
+
+    // Cycle: Example -> Mnemonic -> Loop/Stay
+
+    // Stage 0: Show Example
+    if (hintStage === 0) {
+        if (card.examples && card.examples.length > 0) {
+            msg = "🇩🇪 " + card.examples[0].de;
+            icon = "🇩🇪";
+        } else if (card.ex_de) {
+            msg = "🇩🇪 " + card.ex_de;
+            icon = "🇩🇪";
+        } else {
+            // No example, auto-skip to mnemonic
+            msg = null;
+        }
+
+        // If found, increment. If not found, we fall through to Mnemonic immediately
+        if (msg) {
+            hintStage = 1;
+        }
+    }
+
+    // Stage 1: Mnemonic (or fallback if Example missing)
+    if (!msg) { // If stage 1 OR stage 0 failed
+        if (card.learning && card.learning.mnemonic) {
+            msg = "💡 " + card.learning.mnemonic;
+            icon = "💡";
+        }
+        hintStage = 0; // Reset loop (or stay at 1? Cycle is better)
+    }
+
+    // Fallback if neither
+    if (!msg) {
+        msg = "No hint available.";
+        hintStage = 0;
+    }
+
+    const toast = document.getElementById('toast');
+    if (toast) {
+        const msgEl = document.getElementById('toast-msg');
+        if (msgEl) msgEl.innerText = msg;
+        else toast.innerText = msg;
+
+        // Reset animation to allow re-trigger
+        toast.classList.remove('visible');
+        void toast.offsetWidth; // force reflow
+        toast.classList.add('visible');
+
+        // Auto hide
+        setTimeout(() => toast.classList.remove('visible'), 4000);
+    } else {
+        alert(msg);
+    }
 }
 
 export function flip() {
@@ -121,11 +263,22 @@ export function flip() {
     if (cardEl) cardEl.classList.toggle('flipped');
 
     if (isFlipped) {
+        // Show Controls
         const ctrls = document.querySelector('.controls');
         if (ctrls) {
             ctrls.style.opacity = '1';
             ctrls.style.pointerEvents = 'auto';
         }
+
+        // Hide Hint Button (User request: no point showing if flipped)
+        const hintBtn = document.getElementById('hint-btn');
+        if (hintBtn) hintBtn.style.display = 'none';
+
+    } else {
+        // Unflip (if toggled back? though usually we don't allow unflip in simple SRS)
+        // But if we did:
+        const hintBtn = document.getElementById('hint-btn');
+        if (hintBtn) hintBtn.style.display = 'block';
     }
 }
 

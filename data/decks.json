@@ -1,0 +1,54 @@
+[
+    {
+        "id": "de_a1",
+        "title": "German A1 (Beginner)",
+        "description": "Essential vocabulary for starting your journey.",
+        "level": "A1",
+        "file": "data/json/vocabulary.json",
+        "color": "#4CAF50",
+        "filter": {
+            "level": "A1"
+        }
+    },
+    {
+        "id": "de_a2",
+        "title": "German A2 (Elementary)",
+        "description": "Expand your conversation skills.",
+        "level": "A2",
+        "file": "data/json/vocabulary.json",
+        "color": "#2196F3",
+        "filter": {
+            "level": "A2"
+        }
+    },
+    {
+        "id": "de_b1",
+        "title": "German B1 (Intermediate)",
+        "description": "Confidence in daily situations.",
+        "level": "B1",
+        "file": "data/json/vocabulary.json",
+        "color": "#FF9800",
+        "filter": {
+            "level": "B1"
+        }
+    },
+    {
+        "id": "de_b2",
+        "title": "German B2 (Upper Intermediate)",
+        "description": "Fluent / Professional German.",
+        "level": "B2",
+        "file": "data/json/vocabulary.json",
+        "color": "#E91E63",
+        "filter": {
+            "level": "B2"
+        }
+    },
+    {
+        "id": "de_complete",
+        "title": "German Complete (All Levels)",
+        "description": "The full extended collection with mnemonics.",
+        "level": "All",
+        "file": "data/json/vocabulary.json",
+        "color": "#9C27B0"
+    }
+]
