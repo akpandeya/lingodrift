@@ -593,36 +593,40 @@
             color: var(--error);
         }
 
-        /* Toast relative to review container */
-        #toast {
+        /* Hint Toast (Previously #toast) */
+        #hint-toast {
             position: absolute;
-            top: 100%;
-            /* Below the container */
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            /* Add some gap */
-            background: #334155;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translate(-50%, -50%) scale(0.9);
+            /* Center over card */
+            background: rgba(15, 23, 42, 0.95);
+            /* Dark background */
+            color: #fbbf24;
+            /* Amber text */
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             gap: 12px;
             opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 999;
-            white-space: nowrap;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 1000;
+            /* High z-index */
+            max-width: 90%;
+            text-align: center;
+            border: 1px solid rgba(251, 191, 36, 0.3);
             pointer-events: none;
-            font-size: 0.9rem;
         }
 
-        #toast.visible {
-            transform: translateX(-50%) translateY(10px);
-            /* Slide up slightly */
+        #hint-toast.visible {
+            transform: translate(-50%, -50%) scale(1);
             opacity: 1;
             pointer-events: auto;
         }
+
+
 
         .toast-icon {
             font-size: 1.2rem;
@@ -1896,9 +1900,9 @@
                     onclick="window.app.answer(4)">Easy</button>
             </div>
 
-            <!-- Toast (Moved here to be positioned relative to container) -->
-            <div id="toast">
-                <span id="toast-msg">Hint Message</span>
+            <!-- Hint Toast (Renamed) -->
+            <div id="hint-toast">
+                <span id="hint-msg">Hint Message</span>
             </div>
 
         </div>
@@ -1949,8 +1953,9 @@
 
     <input type="file" id="jsonInput" accept=".json" class="hidden" onchange="app.handleRestore(event)">
 
-    <!-- TOAST -->
-    <div id="toast">
+    <!-- GLOBAL TOAST (Kept for notifications, distinct from hint) -->
+    <div id="toast"
+        style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #334155; color: white; padding: 10px 20px; border-radius: 50px; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 2000;">
         <span class="toast-icon">✨</span>
         <span id="toast-msg">Notification</span>
     </div>

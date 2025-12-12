@@ -178,6 +178,15 @@ export function renderCard() {
             genderDiv.innerHTML = `<span class="info-label">Gender:</span> <span style="text-transform:capitalize">${card.grammar.gender}</span>`;
             infoContainer.appendChild(genderDiv);
         }
+
+        // Mnemonic (Added per user request)
+        if (card.learning && card.learning.mnemonic) {
+            const mnemDiv = document.createElement('div');
+            mnemDiv.className = 'info-row';
+            mnemDiv.style.marginTop = '8px'; // Add a little separation
+            mnemDiv.innerHTML = `<span class="info-label">💡 Mnemonic:</span> <span style="font-style:italic; color: #e2e8f0;">${card.learning.mnemonic}</span>`;
+            infoContainer.appendChild(mnemDiv);
+        }
     }
 
     // Examples
@@ -239,9 +248,9 @@ export function showHint() {
         hintStage = 0;
     }
 
-    const toast = document.getElementById('toast');
+    const toast = document.getElementById('hint-toast');
     if (toast) {
-        const msgEl = document.getElementById('toast-msg');
+        const msgEl = document.getElementById('hint-msg');
         if (msgEl) msgEl.innerText = msg;
         else toast.innerText = msg;
 
