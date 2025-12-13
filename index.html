@@ -1439,515 +1439,497 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Dictionary Detail Grid */
-        .detail-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        .dict-front {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
         }
 
-        .detail-col {
-            display: flex;
-            flex-direction: column;
+        .dict-back {
+            font-size: 0.9rem;
+            color: var(--text-muted);
         }
 
-        /* --- DESKTOP DETAIL GRID --- */
-        @media (min-width: 1024px) {
-            .detail-grid {}
+        .dict-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
 
-            .dict-main {
-                display: flex;
-                flex-direction: column;
-                gap: 2px;
+        .dict-tag {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .marker-lvl {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(52, 211, 153, 0.2);
+            color: var(--success);
+            font-weight: 700;
+            margin-left: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .marker-new {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            font-weight: 700;
+            margin-left: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* TAG INPUT CSS */
+        .tag-input-container {
+            width: 100%;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .tag-input-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            min-height: 48px;
+        }
+
+        .tag-chip {
+            background: var(--primary);
+            color: white;
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tag-chip span {
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .tag-chip span:hover {
+            opacity: 1;
+        }
+
+        .tag-input-field {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            flex-grow: 1;
+            min-width: 120px;
+            outline: none;
+        }
+
+        .tag-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-top: 4px;
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .tag-option {
+            padding: 10px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+        }
+
+        .level-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .level-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .level-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+        }
+
+        /* --- MODAL --- */
+        #detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #detail-modal.visible {
+            display: flex;
+            animation: fademodal 0.2s ease-out;
+        }
+
+        #detail-modal-content {
+            background: #1e293b;
+            width: 100%;
+            max-width: 500px;
+            max-height: 85vh;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            padding: 24px;
+            color: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        @keyframes fademodal {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
             }
 
-            .dict-front {
-                font-size: 1.1rem;
-                font-weight: 700;
-                color: var(--text-main);
-            }
-
-            .dict-back {
-                font-size: 0.9rem;
-                color: var(--text-muted);
-            }
-
-            .dict-tags {
-                display: flex;
-                gap: 4px;
-                flex-wrap: wrap;
-                justify-content: flex-end;
-            }
-
-            .dict-tag {
-                font-size: 0.7rem;
-                padding: 2px 8px;
-                border-radius: 12px;
-                background: rgba(255, 255, 255, 0.1);
-                color: var(--text-muted);
-                font-weight: 600;
-            }
-
-            .marker-lvl {
-                font-size: 0.7rem;
-                padding: 2px 6px;
-                border-radius: 4px;
-                background: rgba(52, 211, 153, 0.2);
-                color: var(--success);
-                font-weight: 700;
-                margin-left: 8px;
-                letter-spacing: 0.5px;
-            }
-
-            .marker-new {
-                font-size: 0.7rem;
-                padding: 2px 6px;
-                border-radius: 4px;
-                background: rgba(251, 191, 36, 0.2);
-                color: #fbbf24;
-                font-weight: 700;
-                margin-left: 8px;
-                letter-spacing: 0.5px;
-                text-transform: uppercase;
-            }
-
-            /* TAG INPUT CSS */
-            .tag-input-container {
-                width: 100%;
-                margin-bottom: 24px;
-                position: relative;
-            }
-
-            .tag-input-wrapper {
-                background: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 12px;
-                padding: 8px 12px;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 6px;
-                align-items: center;
-                min-height: 48px;
-            }
-
-            .tag-chip {
-                background: var(--primary);
-                color: white;
-                font-size: 0.85rem;
-                padding: 4px 10px;
-                border-radius: 16px;
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-            }
-
-            .tag-chip span {
-                cursor: pointer;
-                opacity: 0.7;
-            }
-
-            .tag-chip span:hover {
+            to {
                 opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* ... existing animations ... */
+
+        /* ... existing media queries ... */
+
+        /* --- DESKTOP LAYOUT (>= 768px) --- */
+        @media (min-width: 768px) {
+            body {
+                flex-direction: row;
+                /* Fallback */
+                display: grid;
+                grid-template-columns: 250px 1fr;
+                grid-template-areas: "nav content";
+                align-items: start;
+                justify-content: stretch;
+                overflow: hidden;
+                /* Main scroll handled by regions */
             }
 
-            .tag-input-field {
-                background: transparent;
-                border: none;
-                color: white;
-                font-size: 0.9rem;
-                flex-grow: 1;
-                min-width: 120px;
-                outline: none;
+            /* Background Pattern for Desktop */
+            body {
+                background-color: #0f172a;
+                background-image:
+                    radial-gradient(circle at 15% 50%, rgba(129, 140, 248, 0.08) 0%, transparent 25%),
+                    radial-gradient(circle at 85% 30%, rgba(45, 212, 191, 0.08) 0%, transparent 25%);
             }
 
-            .tag-dropdown {
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background: #1e293b;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 8px;
-                margin-top: 4px;
-                z-index: 100;
-                max-height: 200px;
-                overflow-y: auto;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            }
-
-            .tag-option {
-                padding: 10px 16px;
-                cursor: pointer;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                color: var(--text-muted);
-            }
-
-            .level-btn {
-                background: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                color: var(--text-muted);
-                padding: 8px 16px;
-                border-radius: 20px;
-                font-size: 0.9rem;
-                cursor: pointer;
-                transition: all 0.2s;
-            }
-
-            .level-btn:hover {
-                background: rgba(255, 255, 255, 0.1);
-                color: white;
-            }
-
-            .level-btn.active {
-                background: var(--primary);
-                color: white;
-                border-color: var(--primary);
-                box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
-            }
-
-            /* --- DESKTOP SIDEBAR (Hidden on Mobile) --- */
             #desktop-sidebar {
+                grid-area: nav;
+                display: flex !important;
+                flex-direction: column;
+                height: 100vh;
+                background: rgba(15, 23, 42, 0.6);
+                backdrop-filter: blur(20px);
+                border-right: 1px solid rgba(255, 255, 255, 0.05);
+                padding: 32px 16px;
+                /* Reduced padding */
+                z-index: 100;
+                position: relative;
+                width: 220px !important;
+                /* Compact Sidebar */
+                flex-shrink: 0;
+            }
+
+            #main-content {
+                grid-area: content;
+                height: 100vh;
+                overflow-y: auto;
+                /* ENABLE SCROLLING */
+                position: relative;
+                padding: 20px;
+                /* Reduced padding (was 40px) */
+                display: block;
+                /* Change from flex to block to allow normal flow scrolling */
+                /* Custom Scrollbar for content */
+                scrollbar-width: thin;
+                scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+            }
+
+            /* Responsive Content Widths */
+            .glass-panel {
+                width: 100%;
+                max-width: 900px;
+                /* Allow wider dashboard */
+            }
+
+            /* Hide Mobile-specific Headers/Elements if needed */
+            .mobile-only {
                 display: none !important;
             }
 
-            /* --- MODAL (Mobile Fullscreen) --- */
-            #detail-modal {
-                display: none;
+            /* Adjust Orbs to be fixed or contained */
+            .orb {
                 position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw !important;
-                height: 100vh !important;
-                background: rgba(15, 23, 42, 0.95);
-                backdrop-filter: blur(10px);
-                z-index: 2000;
-                /* On top of everything */
-                justify-content: center;
-                align-items: center;
-                padding: 0;
-                /* Fullscreen, no padding container needed here */
             }
+        }
 
-            #detail-modal.visible {
-                display: flex;
-                animation: fademodal 0.2s ease-out;
-            }
+        /* Default Sidebar State (Hidden on Mobile) */
+        #desktop-sidebar {
+            display: none;
+        }
 
-            #detail-modal-content {
-                background: #1e293b;
-                width: 100%;
-                height: 100%;
-                /* Fullscreen height */
-                /* border-radius removed for fullscreen feel */
-                border-radius: 0;
-                box-shadow: none;
-                padding: 20px;
-                color: white;
-                position: relative;
-                display: flex;
-                flex-direction: column;
-                overflow-y: auto;
-                /* Scroll INSIDE the modal */
-            }
-
-            /* ... existing animations ... */
-
-            /* ... existing media queries ... */
-
-            /* --- DESKTOP LAYOUT (>= 768px) --- */
-            @media (min-width: 768px) {
-                body {
-                    flex-direction: row;
-                    /* Fallback */
-                    display: grid;
-                    grid-template-columns: 250px 1fr;
-                    grid-template-areas: "nav content";
-                    align-items: start;
-                    justify-content: stretch;
-                    overflow: hidden;
-                    /* Main scroll handled by regions */
-                }
-
-                /* Background Pattern for Desktop */
-                body {
-                    background-color: #0f172a;
-                    background-image:
-                        radial-gradient(circle at 15% 50%, rgba(129, 140, 248, 0.08) 0%, transparent 25%),
-                        radial-gradient(circle at 85% 30%, rgba(45, 212, 191, 0.08) 0%, transparent 25%);
-                }
-
-                #desktop-sidebar {
-                    grid-area: nav;
-                    display: flex !important;
-                    flex-direction: column;
-                    height: 100vh;
-                    background: rgba(15, 23, 42, 0.6);
-                    backdrop-filter: blur(20px);
-                    border-right: 1px solid rgba(255, 255, 255, 0.05);
-                    padding: 32px 16px;
-                    /* Reduced padding */
-                    z-index: 100;
-                    position: relative;
-                    width: 220px !important;
-                    /* Compact Sidebar */
-                    flex-shrink: 0;
-                }
-
-                #main-content {
-                    grid-area: content;
-                    height: 100vh;
-                    overflow-y: auto;
-                    /* ENABLE SCROLLING */
-                    position: relative;
-                    padding: 20px;
-                    /* Reduced padding (was 40px) */
-                    display: block;
-                    /* Change from flex to block to allow normal flow scrolling */
-                    /* Custom Scrollbar for content */
-                    scrollbar-width: thin;
-                    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-                }
-
-                /* Responsive Content Widths */
-                .glass-panel {
-                    width: 100%;
-                    max-width: 900px;
-                    /* Allow wider dashboard */
-                }
-
-                /* Hide Mobile-specific Headers/Elements if needed */
-                .mobile-only {
-                    display: none !important;
-                }
-
-                /* Adjust Orbs to be fixed or contained */
-                .orb {
-                    position: fixed;
-                }
-            }
-
-            /* Default Sidebar State (Hidden on Mobile) */
-            #desktop-sidebar {
-                display: none;
-            }
-
-            /* Default Content Wrapper (Display contents for mobile to keep flex behavior) */
-            #main-content {
-                display: contents;
-                /* On mobile, 'contents' makes children behave as direct children of body (flex column)
+        /* Default Content Wrapper (Display contents for mobile to keep flex behavior) */
+        #main-content {
+            display: contents;
+            /* On mobile, 'contents' makes children behave as direct children of body (flex column)
                But 'contents' might mess up scrolling if body expects overflow-x: hidden.
                Actually, body is flex centered. If we use display: contents, children are flex items of body.
                This preserves exact mobile behavior. */
+        }
+
+        /* --- DASHBOARD GRID (Desktop) --- */
+        @media (min-width: 768px) {
+
+            /* Center Maximum Widths for Desktop Views - REMOVED CENTERING to Left Align */
+            #dashboard,
+            #library-screen,
+            #dictionary-screen,
+            #stats-screen {
+                width: 100%;
+                max-width: 1200px;
+                margin: 0;
+                /* Left align */
             }
 
-            /* --- DASHBOARD GRID (Desktop) --- */
-            @media (min-width: 768px) {
-
-                /* Center Maximum Widths for Desktop Views - REMOVED CENTERING to Left Align */
-                #dashboard,
-                #library-screen,
-                #dictionary-screen,
-                #stats-screen {
-                    width: 100%;
-                    max-width: 1200px;
-                    margin: 0;
-                    /* Left align */
-                }
-
-                /* Specific Adjustment for Dashboard Grid */
-                #dashboard {
-                    display: grid;
-                    grid-template-columns: repeat(2, 1fr);
-                    grid-template-rows: auto auto auto auto;
-                    gap: 24px;
-                    padding-bottom: 40px;
-                    align-content: start;
-                }
-
-                /* Header (Streak) */
-                .dash-header {
-                    grid-column: 1 / span 2;
-                    grid-row: 1;
-                    margin-bottom: 0 !important;
-                    justify-content: flex-end;
-                    text-align: left;
-                }
-
-                .dash-header>*:first-child,
-                .dash-header>.logo-text {
-                    display: none !important;
-                }
-
-                /* Stats (Progress) */
-                .dash-stats {
-                    grid-column: 1 / span 2;
-                    grid-row: 2;
-                    margin-bottom: 0 !important;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                }
-
-                /* Deck Controls */
-                #level-filter-container {
-                    grid-column: 1;
-                    grid-row: 3;
-                    margin-bottom: 0 !important;
-                }
-
-                .tag-input-container {
-                    grid-column: 1;
-                    grid-row: 4;
-                }
-
-                /* Daily Goal */
-                .hero-section {
-                    grid-column: 2;
-                    grid-row: 3 / span 2;
-                    /* Spans level & tag rows */
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                }
-
-                /* Arcade */
-                .arcade-label {
-                    grid-column: 1 / span 2;
-                    grid-row: 5;
-                }
-
-                .arcade-grid {
-                    grid-column: 1 / span 2;
-                    grid-row: 6;
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 16px;
-                }
-
-                /* Footer */
-                .footer-actions {
-                    grid-column: 1 / span 2;
-                    grid-row: 7;
-                    justify-content: flex-start;
-                    /* Left align footer too */
-                }
-
-                /* DICTIONARY SPLIT VIEW (Desktop) */
-                #dictionary-screen {
-                    display: flex !important;
-                    flex-direction: row !important;
-                    overflow: hidden !important;
-                    height: 100vh;
-                    max-width: 100% !important;
-                    /* Override width constraint to allow full split */
-                }
-
-                #dict-left-pane {
-                    width: 280px !important;
-                    /* Compact width for list */
-                    flex-shrink: 0;
-                    height: 100%;
-                    overflow-y: auto;
-                    border-right: 1px solid rgba(255, 255, 255, 0.05);
-                    display: flex !important;
-                    /* Ensure visible */
-                    flex-direction: column;
-                }
-
-                #dict-right-pane {
-                    flex: 1;
-                    /* Take remaining space */
-                    height: 100%;
-                    overflow-y: auto;
-                    display: block !important;
-                    /* Enable on desktop */
-                    background: rgba(15, 23, 42, 0.4);
-                }
-
-                /* REVIEW SCREEN DESKTOP */
-                #review-container {
-                    max-width: 1000px;
-                    display: flex;
-                    flex-direction: row;
-                    gap: 40px;
-                    align-items: flex-start;
-                    /* Top align */
-                    justify-content: center;
-                    /* Center the pair */
-                    margin: 0 auto;
-                    /* Center in container */
-                    height: 100%;
-                    padding-top: 40px;
-                    /* Add some top padding instead of center */
-                }
-
-                .scene {
-                    width: 600px !important;
-                    height: 500px;
-                    margin: 0 !important;
-                }
-
-                /* Floating Controls */
-                .controls {
-                    flex-direction: column !important;
-                    width: auto !important;
-                    margin-top: 0 !important;
-                    position: static !important;
-                    gap: 16px;
-                    order: 2;
-                    /* Right side */
-                }
-
-                .btn-review {
-                    width: 140px;
-                    border-radius: 12px !important;
-                    padding-left: 16px;
-                    text-align: left;
-                    position: relative;
-                }
-
-                .btn-review::after {
-                    content: attr(data-key);
-                    position: absolute;
-                    right: 12px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    font-family: monospace;
-                    opacity: 0.5;
-                    font-size: 0.9rem;
-                    background: rgba(0, 0, 0, 0.2);
-                    padding: 2px 8px;
-                    border-radius: 4px;
-                }
+            /* Specific Adjustment for Dashboard Grid */
+            #dashboard {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto auto auto auto;
+                gap: 24px;
+                padding-bottom: 40px;
+                align-content: start;
             }
 
-            /* Default (Mobile) Dictionary Styles override */
-            #dict-left-pane {
+            /* Header (Streak) */
+            .dash-header {
+                grid-column: 1 / span 2;
+                grid-row: 1;
+                margin-bottom: 0 !important;
+                justify-content: flex-end;
+                text-align: left;
+            }
+
+            .dash-header>*:first-child,
+            .dash-header>.logo-text {
+                display: none !important;
+            }
+
+            /* Stats (Progress) */
+            .dash-stats {
+                grid-column: 1 / span 2;
+                grid-row: 2;
+                margin-bottom: 0 !important;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            /* Deck Controls */
+            #level-filter-container {
+                grid-column: 1;
+                grid-row: 3;
+                margin-bottom: 0 !important;
+            }
+
+            .tag-input-container {
+                grid-column: 1;
+                grid-row: 4;
+            }
+
+            /* Daily Goal */
+            .hero-section {
+                grid-column: 2;
+                grid-row: 3 / span 2;
+                /* Spans level & tag rows */
                 height: 100%;
                 display: flex;
                 flex-direction: column;
-                width: 100%;
+                justify-content: center;
+            }
+
+            /* Arcade */
+            .arcade-label {
+                grid-column: 1 / span 2;
+                grid-row: 5;
+            }
+
+            .arcade-grid {
+                grid-column: 1 / span 2;
+                grid-row: 6;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+            }
+
+            /* Footer */
+            .footer-actions {
+                grid-column: 1 / span 2;
+                grid-row: 7;
+                justify-content: flex-start;
+                /* Left align footer too */
+            }
+
+            /* DICTIONARY SPLIT VIEW (Desktop) */
+            #dictionary-screen {
+                display: flex !important;
+                flex-direction: row !important;
+                overflow: hidden !important;
+                height: 100vh;
+                max-width: 100% !important;
+                /* Override width constraint to allow full split */
+            }
+
+            #dict-left-pane {
+                width: 280px !important;
+                /* Compact width for list */
+                flex-shrink: 0;
+                height: 100%;
+                overflow-y: auto;
+                border-right: 1px solid rgba(255, 255, 255, 0.05);
+                display: flex !important;
+                /* Ensure visible */
+                flex-direction: column;
             }
 
             #dict-right-pane {
-                display: none;
+                flex: 1;
+                /* Take remaining space */
+                height: 100%;
+                overflow-y: auto;
+                display: block !important;
+                /* Enable on desktop */
+                background: rgba(15, 23, 42, 0.4);
             }
 
-            /* SAFE AREA SUPPORT */
-            .card-scroll-area,
-            #dict-left-pane,
-            #dict-right-pane,
-            #main-content {
-                padding-bottom: env(safe-area-inset-bottom) !important;
-                padding-left: env(safe-area-inset-left);
-                padding-right: env(safe-area-inset-right);
+            /* REVIEW SCREEN DESKTOP */
+            #review-container {
+                max-width: 1000px;
+                display: flex;
+                flex-direction: row;
+                gap: 40px;
+                align-items: flex-start;
+                /* Top align */
+                justify-content: center;
+                /* Center the pair */
+                margin: 0 auto;
+                /* Center in container */
+                height: 100%;
+                padding-top: 40px;
+                /* Add some top padding instead of center */
             }
 
-            /* Ensure bottom buttons aren't covered */
-            .footer-actions {
-                margin-bottom: env(safe-area-inset-bottom);
+            .scene {
+                width: 600px !important;
+                height: 500px;
+                margin: 0 !important;
             }
+
+            /* Floating Controls */
+            .controls {
+                flex-direction: column !important;
+                width: auto !important;
+                margin-top: 0 !important;
+                position: static !important;
+                gap: 16px;
+                order: 2;
+                /* Right side */
+            }
+
+            .btn-review {
+                width: 140px;
+                border-radius: 12px !important;
+                padding-left: 16px;
+                text-align: left;
+                position: relative;
+            }
+
+            .btn-review::after {
+                content: attr(data-key);
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-family: monospace;
+                opacity: 0.5;
+                font-size: 0.9rem;
+                background: rgba(0, 0, 0, 0.2);
+                padding: 2px 8px;
+                border-radius: 4px;
+            }
+        }
+
+        /* Default (Mobile) Dictionary Styles override */
+        #dict-left-pane {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        #dict-right-pane {
+            display: none;
+        }
+
+        /* SAFE AREA SUPPORT */
+        .card-scroll-area,
+        #dict-left-pane,
+        #dict-right-pane,
+        #main-content {
+            padding-bottom: env(safe-area-inset-bottom) !important;
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+
+        /* Ensure bottom buttons aren't covered */
+        .footer-actions {
+            margin-bottom: env(safe-area-inset-bottom);
+        }
     </style>
 </head>
 

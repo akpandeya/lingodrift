@@ -207,10 +207,10 @@ function getPOSColor(tags) {
 
 function getDetailStructure() {
     return `
-        <div class="modal-content" style="border:none; box-shadow:none; height:100%; display:flex; flex-direction:column; gap:0; background: transparent;">
+        <div class="modal-content" style="border:none; box-shadow:none; height:100%; display:flex; flex-direction:column; gap:20px; background: transparent;">
             <!-- HEADER -->
-            <div class="modal-header" style="text-align:center; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
-                <div id="detail-emoji" style="font-size: 3rem; margin-bottom: 10px;"></div>
+            <div class="modal-header" style="text-align:center; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div id="detail-emoji" style="font-size: 3rem; margin-bottom: 10px; animation: bounce 2s infinite;"></div>
                 <div class="modal-word" id="detail-word" style="font-size: 2.5rem; line-height:1.2;"></div>
                 <div style="display:flex; gap:10px; justify-content:center; align-items:center; margin-top:8px;">
                     <span id="detail-phonetics" style="font-family:monospace; color:var(--text-muted);"></span>
@@ -219,80 +219,70 @@ function getDetailStructure() {
                 <div class="modal-def" id="detail-def" style="margin-top: 16px; font-size: 1.3rem; color: var(--text-main); font-weight: 500;"></div>
             </div>
 
-            <div class="detail-scroll-area" style="flex: 1; overflow-y: auto; padding: 20px 4px;">
-                <div class="detail-grid">
-                    
-                    <!-- LEFT COLUMN -->
-                    <div class="detail-col">
-                        <!-- GRAMMAR TABLE (If applicable) -->
-                        <div id="detail-grammar-section" style="margin-bottom: 24px; display:none;">
-                            <div class="section-title">Grammar</div>
-                            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
-                                <div class="info-row" id="row-gender" style="display:none;">
-                                    <span class="info-label">Gender</span>
-                                    <span id="val-gender" style="text-transform:capitalize"></span>
-                                </div>
-                                <div class="info-row" id="row-plural" style="display:none;">
-                                    <span class="info-label">Plural</span>
-                                    <span id="val-plural"></span>
-                                </div>
-                                <div class="info-row" id="row-genitive" style="display:none;">
-                                    <span class="info-label">Genitivo</span>
-                                    <span id="val-genitive"></span>
-                                </div>
-                            </div>
+            <div style="flex: 1; overflow-y: auto; padding-right: 4px;">
+                <!-- GRAMMAR TABLE (If applicable) -->
+                <div id="detail-grammar-section" style="margin-bottom: 24px; display:none;">
+                    <div class="section-title">Grammar</div>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
+                        <div class="info-row" id="row-gender" style="display:none;">
+                            <span class="info-label">Gender</span>
+                            <span id="val-gender" style="text-transform:capitalize"></span>
                         </div>
-
-                        <!-- LEARNING AIDS -->
-                        <div id="detail-learning-section" style="margin-bottom: 24px;">
-                             <div class="section-title">Learning Aids</div>
-                             
-                             <div id="box-synonyms" style="margin-bottom:8px; display:none;">
-                                <span class="info-label">Synonyms:</span> 
-                                <span id="val-synonyms" style="color:var(--text-muted); padding-left:8px;"></span>
-                             </div>
-                             <div id="box-antonyms" style="margin-bottom:8px; display:none;">
-                                <span class="info-label">Antonyms:</span> 
-                                <span id="val-antonyms" style="color:var(--text-muted); padding-left:8px;"></span>
-                             </div>
-
-                             <div id="box-mnemonic" style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); padding: 12px; border-radius: 8px; margin-top: 12px; display:none;">
-                                <div style="color: #fbbf24; font-weight:700; font-size:0.8rem; margin-bottom:4px;">💡 MNEMONIC</div>
-                                <div id="val-mnemonic" style="font-style: italic; color: #e2e8f0;"></div>
-                             </div>
+                        <div class="info-row" id="row-plural" style="display:none;">
+                            <span class="info-label">Plural</span>
+                            <span id="val-plural"></span>
+                        </div>
+                        <div class="info-row" id="row-genitive" style="display:none;">
+                            <span class="info-label">Genitivo</span>
+                            <span id="val-genitive"></span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- RIGHT COLUMN -->
-                    <div class="detail-col">
-                        <!-- EXAMPLES -->
-                        <div style="margin-bottom: 24px;">
-                            <div class="section-title">Examples</div>
-                            <div id="detail-examples-list"></div>
-                            <button class="btn-ghost" style="padding: 8px; font-size: 0.85rem; width: 100%; margin-top: 8px;"
-                                onclick="app.addDetailExample()">+ Add Example</button>
-                        </div>
+                <!-- LEARNING AIDS -->
+                <div id="detail-learning-section" style="margin-bottom: 24px;">
+                     <div class="section-title">Learning Aids</div>
+                     
+                     <div id="box-synonyms" style="margin-bottom:8px; display:none;">
+                        <span class="info-label">Synonyms:</span> 
+                        <span id="val-synonyms" style="color:var(--text-muted); padding-left:8px;"></span>
+                     </div>
+                     <div id="box-antonyms" style="margin-bottom:8px; display:none;">
+                        <span class="info-label">Antonyms:</span> 
+                        <span id="val-antonyms" style="color:var(--text-muted); padding-left:8px;"></span>
+                     </div>
 
-                        <!-- TAGS -->
-                        <div style="margin-bottom: 24px;">
-                            <div class="section-title">Tags & Topics</div>
-                            <div class="chip-container" id="detail-tags"></div>
-                            <input type="text" class="input-bare" id="detail-tag-input" placeholder="Type tag & hit Enter"
-                                onkeydown="if(event.key==='Enter') app.addDetailTag(this.value)">
-                        </div>
+                     <div id="box-mnemonic" style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); padding: 12px; border-radius: 8px; margin-top: 12px; display:none;">
+                        <div style="color: #fbbf24; font-weight:700; font-size:0.8rem; margin-bottom:4px;">💡 MNEMONIC</div>
+                        <div id="val-mnemonic" style="font-style: italic; color: #e2e8f0;"></div>
+                     </div>
+                </div>
 
-                        <!-- NOTES -->
-                        <div>
-                            <div class="section-title">My Notes</div>
-                            <textarea class="input-bare" id="detail-notes" rows="4" placeholder="Add personal notes..."></textarea>
-                        </div>
-                    </div>
+                <!-- EXAMPLES -->
+                <div style="margin-bottom: 24px;">
+                    <div class="section-title">Examples</div>
+                    <div id="detail-examples-list"></div>
+                    <button class="btn-ghost" style="padding: 8px; font-size: 0.85rem; width: 100%; margin-top: 8px;"
+                        onclick="app.addDetailExample()">+ Add Example</button>
+                </div>
 
+                <!-- TAGS -->
+                <div style="margin-bottom: 24px;">
+                    <div class="section-title">Tags & Topics</div>
+                    <div class="chip-container" id="detail-tags"></div>
+                    <input type="text" class="input-bare" id="detail-tag-input" placeholder="Type tag & hit Enter"
+                        onkeydown="if(event.key==='Enter') app.addDetailTag(this.value)">
+                </div>
+
+                <!-- NOTES -->
+                <div>
+                    <div class="section-title">My Notes</div>
+                    <textarea class="input-bare" id="detail-notes" rows="4" placeholder="Add personal notes..."></textarea>
                 </div>
             </div>
 
             <!-- FOOTER -->
-            <div style="display: flex; gap: 12px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; flex-shrink: 0;">
+            <div style="display: flex; gap: 12px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
                 <button class="btn-ghost" style="flex:1;" onclick="app.closeDetail()">Close</button>
                 <button class="btn-primary" style="flex:1;" onclick="app.saveDetail()">Save Changes</button>
             </div>
@@ -420,7 +410,7 @@ export function openDetail(id) {
     renderDetailTags();
     renderDetailExamples();
 
-    // Show View (Mobile only needs toggle)
+    // Show View
     if (!isDesktop) {
         const m = document.getElementById('detail-modal');
         if (m) {
@@ -428,19 +418,12 @@ export function openDetail(id) {
             m.classList.remove('hidden');
             void m.offsetWidth; // force reflow
             m.classList.add('visible');
-
-            // LOCK BODY SCROLL
-            document.body.style.overflow = 'hidden';
         }
     }
 }
 
 export function closeDetail() {
     const isDesktop = window.innerWidth >= 768;
-
-    // UNLOCK BODY SCROLL (Always safe to reset)
-    document.body.style.overflow = '';
-
     if (isDesktop) {
         // Desktop: Maybe clear right pane or show placeholder?
         // For now, we can just empty it or leave it. 
