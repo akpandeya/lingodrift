@@ -64,7 +64,7 @@ export function DictionaryDetail() {
                     </div>
 
                     <div className="mt-8 space-y-6">
-                        {/* Definition Section */}
+                        {/* Definition (Legacy) */}
                         {word.def && (
                             <div>
                                 <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Definition</h3>
@@ -72,12 +72,71 @@ export function DictionaryDetail() {
                             </div>
                         )}
 
-                        {/* Example Section */}
-                        {(word.example || word.example_en) && (
+                        {/* Examples Section */}
+                        {word.examples && word.examples.length > 0 && (
+                            <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-800">
+                                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Example Usage</h3>
+                                {word.examples.map((ex, idx) => (
+                                    <div key={idx} className="mb-4 last:mb-0">
+                                        <p className="text-xl text-white italic mb-1">"{ex.de}"</p>
+                                        <p className="text-slate-400">{ex.en}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        {/* Legacy Example Fallback */}
+                        {(!word.examples) && (word.example || word.example_en) && (
                             <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-800">
                                 <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Example Usage</h3>
                                 {word.example && <p className="text-xl text-white italic mb-2">"{word.example}"</p>}
                                 {word.example_en && <p className="text-slate-400">{word.example_en}</p>}
+                            </div>
+                        )}
+
+                        {/* Learning Aids */}
+                        {word.learning && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {word.learning.mnemonic && (
+                                    <div className="bg-yellow-900/20 p-4 rounded-xl border border-yellow-700/30">
+                                        <h4 className="text-yellow-500 font-bold text-sm mb-1 uppercase">Mnemonic</h4>
+                                        <p className="text-yellow-100">{word.learning.mnemonic}</p>
+                                    </div>
+                                )}
+
+                                <div className="space-y-4">
+                                    {word.learning.synonyms && word.learning.synonyms.length > 0 && (
+                                        <div>
+                                            <h4 className="text-slate-500 font-bold text-xs mb-1 uppercase">Synonyms</h4>
+                                            <div className="flex flex-wrap gap-2">
+                                                {word.learning.synonyms.map(syn => (
+                                                    <span key={syn} className="px-2 py-1 bg-slate-800 text-slate-300 rounded text-sm">{syn}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {word.learning.antonyms && word.learning.antonyms.length > 0 && (
+                                        <div>
+                                            <h4 className="text-slate-500 font-bold text-xs mb-1 uppercase">Antonyms</h4>
+                                            <div className="flex flex-wrap gap-2">
+                                                {word.learning.antonyms.map(ant => (
+                                                    <span key={ant} className="px-2 py-1 bg-slate-800 text-slate-300 rounded text-sm">{ant}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Tags */}
+                        {word.tags && (
+                            <div className="pt-4 border-t border-slate-800">
+                                <div className="flex flex-wrap gap-2">
+                                    {word.tags.map(tag => (
+                                        <span key={tag} className="text-xs text-slate-500 bg-slate-900 px-2 py-1 rounded-md border border-slate-800">#{tag}</span>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>

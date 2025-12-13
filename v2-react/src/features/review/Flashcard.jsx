@@ -41,11 +41,18 @@ export function Flashcard({ card, isFlipped, onFlip }) {
                         {card.translation || card.def || "No definition"}
                     </div>
 
-                    {/* Examples or other rich content can go here */}
-                    {card.example && (
-                        <div className="bg-slate-900/50 p-4 rounded-xl text-center">
-                            <p className="text-teal-200 italic">"{card.example}"</p>
-                            {card.example_en && <p className="text-slate-500 text-sm mt-2">{card.example_en}</p>}
+                    {/* Examples */}
+                    {card.examples && card.examples[0] && (
+                        <div className="bg-slate-900/50 p-4 rounded-xl text-center mb-4">
+                            <p className="text-teal-200 italic">"{card.examples[0].de}"</p>
+                            <p className="text-slate-500 text-sm mt-2">{card.examples[0].en}</p>
+                        </div>
+                    )}
+
+                    {/* Mnemonic / Hint */}
+                    {card.learning && card.learning.mnemonic && (
+                        <div className="mt-2 text-sm text-yellow-200/80 bg-yellow-900/20 px-3 py-2 rounded-lg border border-yellow-700/30">
+                            💡 {card.learning.mnemonic}
                         </div>
                     )}
                 </div>
