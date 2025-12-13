@@ -41,6 +41,24 @@ export function Dashboard() {
                 </div>
             </section>
 
+            {/* Games Section */}
+            <section>
+                <h2 className="text-xl font-bold mb-4 text-white">Mini Games</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div onClick={() => navigate('/games/memory')} className="group bg-slate-800 p-6 rounded-2xl border border-slate-700 hover:border-teal-500 cursor-pointer transition-all">
+                        <div className="text-3xl mb-2">🧩</div>
+                        <h3 className="text-lg font-bold text-white group-hover:text-teal-400">Memory Match</h3>
+                        <p className="text-slate-400 text-sm">Find pairs of words and matches.</p>
+                    </div>
+
+                    <div onClick={() => navigate('/games/raindrop')} className="group bg-slate-800 p-6 rounded-2xl border border-slate-700 hover:border-blue-500 cursor-pointer transition-all">
+                        <div className="text-3xl mb-2">💧</div>
+                        <h3 className="text-lg font-bold text-white group-hover:text-blue-400">Raindrop Race</h3>
+                        <p className="text-slate-400 text-sm">Type fast before words hit the ground.</p>
+                    </div>
+                </div>
+            </section>
+
             {/* Hero / Start Section */}
             <div className="bg-gradient-to-r from-teal-900/50 to-blue-900/50 p-8 rounded-3xl border border-white/10 flex flex-col items-center text-center">
                 <h1 className="text-4xl font-bold text-white mb-4">Ready to learn?</h1>
