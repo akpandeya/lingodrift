@@ -114,16 +114,18 @@ export function render(append = false) {
 
             const card = document.createElement('div');
             // Check analyzeWordStyle availability (safety)
+            // Start with nested grammar pos, fallback to root pos
+            const pos = (w.grammar && w.grammar.pos) ? w.grammar.pos : (w.pos || '');
+
             const style = (typeof analyzeWordStyle === 'function')
-                ? analyzeWordStyle(w.pos || '', w.word || '')
+                ? analyzeWordStyle(pos, w.word || '')
                 : { type: 'other', styleClass: 'style-adv', badgeText: 'Other' };
 
             card.className = `dict-card ${style.styleClass}`; // removed undefined style-card-border
 
-            card.onclick = (e) => {
-                if (e.target.closest('.chip-del') || e.target.closest('button')) return;
-                openDetail(w.id);
-            };
+            // Use explicit attribute to avoid any closure/binding issues
+            // This relies on window.app.openDetail being available (which it is)
+            card.setAttribute('onclick', `app.openDetail('${w.id}')`);
 
             // Force border color via inline variable or direct style
             let stripeColor = 'var(--color-adv)';
@@ -169,7 +171,7 @@ export function render(append = false) {
                     <div class="dict-front">
                         ${badgeHtml}
                         <span class="word-text">${displayWord}</span>
-                        <span class="dict-pos">${w.pos || ''}</span>
+                        <span class="dict-pos">${pos || ''}</span>
                         ${progBadge}
                     </div>
                     <div class="dict-back">${w.translation || w.def || ''}</div>
@@ -205,33 +207,93 @@ function getPOSColor(tags) {
 
 function getDetailStructure() {
     return `
-        <div class="modal-content" style="border:none; box-shadow:none; height:100%; display:flex; flex-direction:column; gap:20px; background: transparent;">
-            <div class="modal-header">
-                <div class="modal-word" id="detail-word"></div>
-                <div class="modal-def" id="detail-def"></div>
+        <div class="modal-content" style="border:none; box-shadow:none; height:100%; display:flex; flex-direction:column; gap:0; background: transparent;">
+            <!-- HEADER -->
+            <div class="modal-header" style="text-align:center; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
+                <div id="detail-emoji" style="font-size: 3rem; margin-bottom: 10px;"></div>
+                <div class="modal-word" id="detail-word" style="font-size: 2.5rem; line-height:1.2;"></div>
+                <div style="display:flex; gap:10px; justify-content:center; align-items:center; margin-top:8px;">
+                    <span id="detail-phonetics" style="font-family:monospace; color:var(--text-muted);"></span>
+                    <span id="detail-pos" class="pos-badge" style="font-size:0.7rem;"></span>
+                </div>
+                <div class="modal-def" id="detail-def" style="margin-top: 16px; font-size: 1.3rem; color: var(--text-main); font-weight: 500;"></div>
             </div>
-            <!-- EXAMPLES -->
-            <div>
-                <div class="section-title">Examples</div>
-                <div id="detail-examples-list"></div>
-                <button class="btn-ghost" style="padding: 8px; font-size: 0.85rem; width: 100%; margin-top: 8px;"
-                    onclick="app.addDetailExample()">+ Add Example</button>
+
+            <div class="detail-scroll-area" style="flex: 1; overflow-y: auto; padding: 20px 4px;">
+                <div class="detail-grid">
+                    
+                    <!-- LEFT COLUMN -->
+                    <div class="detail-col">
+                        <!-- GRAMMAR TABLE (If applicable) -->
+                        <div id="detail-grammar-section" style="margin-bottom: 24px; display:none;">
+                            <div class="section-title">Grammar</div>
+                            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
+                                <div class="info-row" id="row-gender" style="display:none;">
+                                    <span class="info-label">Gender</span>
+                                    <span id="val-gender" style="text-transform:capitalize"></span>
+                                </div>
+                                <div class="info-row" id="row-plural" style="display:none;">
+                                    <span class="info-label">Plural</span>
+                                    <span id="val-plural"></span>
+                                </div>
+                                <div class="info-row" id="row-genitive" style="display:none;">
+                                    <span class="info-label">Genitivo</span>
+                                    <span id="val-genitive"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LEARNING AIDS -->
+                        <div id="detail-learning-section" style="margin-bottom: 24px;">
+                             <div class="section-title">Learning Aids</div>
+                             
+                             <div id="box-synonyms" style="margin-bottom:8px; display:none;">
+                                <span class="info-label">Synonyms:</span> 
+                                <span id="val-synonyms" style="color:var(--text-muted); padding-left:8px;"></span>
+                             </div>
+                             <div id="box-antonyms" style="margin-bottom:8px; display:none;">
+                                <span class="info-label">Antonyms:</span> 
+                                <span id="val-antonyms" style="color:var(--text-muted); padding-left:8px;"></span>
+                             </div>
+
+                             <div id="box-mnemonic" style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); padding: 12px; border-radius: 8px; margin-top: 12px; display:none;">
+                                <div style="color: #fbbf24; font-weight:700; font-size:0.8rem; margin-bottom:4px;">💡 MNEMONIC</div>
+                                <div id="val-mnemonic" style="font-style: italic; color: #e2e8f0;"></div>
+                             </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div class="detail-col">
+                        <!-- EXAMPLES -->
+                        <div style="margin-bottom: 24px;">
+                            <div class="section-title">Examples</div>
+                            <div id="detail-examples-list"></div>
+                            <button class="btn-ghost" style="padding: 8px; font-size: 0.85rem; width: 100%; margin-top: 8px;"
+                                onclick="app.addDetailExample()">+ Add Example</button>
+                        </div>
+
+                        <!-- TAGS -->
+                        <div style="margin-bottom: 24px;">
+                            <div class="section-title">Tags & Topics</div>
+                            <div class="chip-container" id="detail-tags"></div>
+                            <input type="text" class="input-bare" id="detail-tag-input" placeholder="Type tag & hit Enter"
+                                onkeydown="if(event.key==='Enter') app.addDetailTag(this.value)">
+                        </div>
+
+                        <!-- NOTES -->
+                        <div>
+                            <div class="section-title">My Notes</div>
+                            <textarea class="input-bare" id="detail-notes" rows="4" placeholder="Add personal notes..."></textarea>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-            <!-- TAGS -->
-            <div>
-                <div class="section-title">Tags</div>
-                <div class="chip-container" id="detail-tags"></div>
-                <input type="text" class="input-bare" id="detail-tag-input" placeholder="Type tag & hit Enter"
-                    onkeydown="if(event.key==='Enter') app.addDetailTag(this.value)">
-            </div>
-            <!-- NOTES -->
-            <div>
-                <div class="section-title">Notes</div>
-                <textarea class="input-bare" id="detail-notes" rows="4" placeholder="Add mnemonics or notes..."></textarea>
-            </div>
+
             <!-- FOOTER -->
-            <div style="display: flex; gap: 12px; margin-top: 10px;">
-                <button class="btn-ghost" style="flex:1;" onclick="app.closeDetail()">Cancel</button>
+            <div style="display: flex; gap: 12px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; flex-shrink: 0;">
+                <button class="btn-ghost" style="flex:1;" onclick="app.closeDetail()">Close</button>
                 <button class="btn-primary" style="flex:1;" onclick="app.saveDetail()">Save Changes</button>
             </div>
         </div>
@@ -239,10 +301,15 @@ function getDetailStructure() {
 }
 
 export function openDetail(id) {
-    const word = store.state.words.find(w => w.id === id);
-    if (!word) return;
+    console.log("Opening detail for ID:", id, "(Type:", typeof id, ")");
+    const word = store.state.words.find(w => String(w.id) === String(id)); // Robust weak comparison
 
-    currentDetailId = id;
+    if (!word) {
+        console.error("Word not found for ID:", id);
+        return;
+    }
+
+    currentDetailId = word.id; // Keep original ID type if needed
     currentDetailTags = [...(word.tags || [])];
     currentDetailExamples = word.examples ? [...word.examples] : [];
 
@@ -277,13 +344,76 @@ export function openDetail(id) {
     // Inject Structure
     container.innerHTML = getDetailStructure();
 
-    // Populate Data
+    // --- POPULATE DATA ---
+
+    // Header
     const wordEl = document.getElementById('detail-word');
     if (wordEl) wordEl.innerText = word.word;
 
-    const defEl = document.getElementById('detail-def');
-    if (defEl) defEl.innerText = word.translation || word.def;
+    const emojiEl = document.getElementById('detail-emoji');
+    if (emojiEl) emojiEl.innerText = word.emoji || '✨';
 
+    const defEl = document.getElementById('detail-def');
+    if (defEl) defEl.innerText = word.translation || word.def || 'Ref needed';
+
+    const phonEl = document.getElementById('detail-phonetics');
+    if (phonEl) phonEl.innerText = word.phonetics || '';
+
+    const posEl = document.getElementById('detail-pos');
+    const pos = (word.grammar && word.grammar.pos) ? word.grammar.pos : (word.pos || '');
+    if (posEl) {
+        posEl.innerText = pos;
+        if (pos) posEl.style.display = 'inline-block';
+        else posEl.style.display = 'none';
+    }
+
+    // Grammar Section
+    const gramSec = document.getElementById('detail-grammar-section');
+    const rowGender = document.getElementById('row-gender');
+    const rowPlural = document.getElementById('row-plural');
+    const rowGenitive = document.getElementById('row-genitive');
+
+    let showGrammar = false;
+    if (word.grammar) {
+        if (word.grammar.gender && word.grammar.gender !== 'unknown') {
+            document.getElementById('val-gender').innerText = word.grammar.gender;
+            rowGender.style.display = 'flex';
+            showGrammar = true;
+        }
+        if (word.grammar.plural) {
+            document.getElementById('val-plural').innerText = word.grammar.plural;
+            rowPlural.style.display = 'flex';
+            showGrammar = true;
+        }
+        if (word.grammar.genitive) {
+            document.getElementById('val-genitive').innerText = word.grammar.genitive;
+            rowGenitive.style.display = 'flex';
+            showGrammar = true;
+        }
+    }
+    if (showGrammar) gramSec.style.display = 'block';
+
+    // Learning Section (Synonyms, Mnemonic)
+    const boxSyn = document.getElementById('box-synonyms');
+    const boxAnt = document.getElementById('box-antonyms');
+    const boxMnem = document.getElementById('box-mnemonic');
+
+    if (word.learning) {
+        if (word.learning.synonyms && word.learning.synonyms.length > 0) {
+            document.getElementById('val-synonyms').innerText = word.learning.synonyms.join(', ');
+            boxSyn.style.display = 'block';
+        }
+        if (word.learning.antonyms && word.learning.antonyms.length > 0) {
+            document.getElementById('val-antonyms').innerText = word.learning.antonyms.join(', ');
+            boxAnt.style.display = 'block';
+        }
+        if (word.learning.mnemonic) {
+            document.getElementById('val-mnemonic').innerText = word.learning.mnemonic;
+            boxMnem.style.display = 'block';
+        }
+    }
+
+    // Notes
     const notesInput = document.getElementById('detail-notes');
     if (notesInput) notesInput.value = word.notes || '';
 
@@ -298,28 +428,35 @@ export function openDetail(id) {
             m.classList.remove('hidden');
             void m.offsetWidth; // force reflow
             m.classList.add('visible');
+
+            // LOCK BODY SCROLL
+            document.body.style.overflow = 'hidden';
         }
     }
 }
 
 export function closeDetail() {
-    const m = document.getElementById('detail-modal');
-    if (m) {
-        m.classList.remove('visible');
-        setTimeout(() => m.style.display = 'none', 300);
-    }
+    const isDesktop = window.innerWidth >= 768;
 
-    // Reset Desktop View to Empty State
-    const dContainer = document.getElementById('dict-detail-container');
-    if (dContainer && window.innerWidth >= 768) {
-        dContainer.innerHTML = `
-             <div style="height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-muted); flex-direction: column; gap: 16px; opacity: 0.5;">
-                <span style="font-size: 3rem;">📖</span>
-                <span>Select a word to view details</span>
-            </div>
-         `;
-    }
+    // UNLOCK BODY SCROLL (Always safe to reset)
+    document.body.style.overflow = '';
 
+    if (isDesktop) {
+        // Desktop: Maybe clear right pane or show placeholder?
+        // For now, we can just empty it or leave it. 
+        // Let's leave it as is or show "Select a word" state.
+        const container = document.getElementById('dict-detail-container');
+        if (container) container.innerHTML = `<div style="display:flex; height:100%; justify-content:center; align-items:center; color:var(--text-muted);">Select a word to view details</div>`;
+    } else {
+        const m = document.getElementById('detail-modal');
+        if (m) {
+            m.classList.remove('visible');
+            setTimeout(() => {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+            }, 200); // Wait for transition
+        }
+    }
     currentDetailId = null;
 }
 
@@ -388,16 +525,42 @@ function renderDetailExamples() {
         const row = document.createElement('div');
         row.className = 'example-item';
 
-        // Use a more robust input/display
-        // For simplicity: contenteditable div
+        // Check if string or object
+        let textDe = '';
+        let textEn = '';
+
+        if (typeof ex === 'string') {
+            textDe = ex;
+        } else if (ex && typeof ex === 'object') {
+            textDe = ex.de || '';
+            textEn = ex.en || '';
+        }
+
         row.innerHTML = `
-            <div class="example-text" contenteditable="true">${ex}</div>
+            <div class="example-content" style="flex:1;">
+                <div class="example-text" contenteditable="true" data-type="de">${textDe}</div>
+                ${textEn ? `<div class="example-sub" contenteditable="true" data-type="en" style="color:var(--text-muted); font-size:0.85rem; padding-left:8px; margin-top:4px; font-style:italic;">${textEn}</div>` : ''}
+            </div>
             <button class="btn-mini del">🗑</button>
         `;
 
         // Bind events
         const textDiv = row.querySelector('.example-text');
-        textDiv.onblur = () => updateDetailExample(idx, textDiv.innerText);
+        textDiv.onblur = () => {
+            if (typeof currentDetailExamples[idx] === 'object') {
+                currentDetailExamples[idx].de = textDiv.innerText.trim();
+            } else {
+                currentDetailExamples[idx] = textDiv.innerText.trim();
+            }
+        };
+
+        // Bind EN update if exists
+        const subDiv = row.querySelector('.example-sub');
+        if (subDiv && typeof currentDetailExamples[idx] === 'object') {
+            subDiv.onblur = () => {
+                currentDetailExamples[idx].en = subDiv.innerText.trim();
+            }
+        }
 
         const btn = row.querySelector('button');
         btn.onclick = () => removeDetailExample(idx);
