@@ -83,7 +83,7 @@ To run the project locally on your machine:
 
 ## 💾 Data Management
 
-LingoFlow allows you to "Bring Your Own Data".
+LingoDrift allows you to "Bring Your Own Data".
 - **Initial Load**: On first launch, the app attempts to fetch `vocabulary.json` from the `public/data/` directory and seed the internal database.
 - **Persistence**: After the initial seed, all data (including your learning progress) lives in **IndexedDB** in your browser. This bypasses the typical 5MB `localStorage` limit, allowing for massive vocabulary lists.
 
