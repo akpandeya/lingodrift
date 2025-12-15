@@ -60,3 +60,23 @@ jobs:
             echo "✅ Staging Deployment Complete"
             echo "🚀 NEXT STEP: If this build looks good, promote to Production:"
             echo "   gh workflow run process-production-release.yml"
+
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        if: success()
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "🚀 LingoDrift Staging Deployed"
+          to: ${{ secrets.ACME_EMAIL }}
+          from: LingoDrift Bot
+          body: |
+            Staging Deployment Successful!
+            
+            🌍 View Site: https://staging.lingodrift.com
+            
+            ✅ PROMOTE TO PRODUCTION:
+            Click the link below and hit 'Run workflow' to push to Live.
+            https://github.com/${{ github.repository }}/actions/workflows/process-production-release.yml
