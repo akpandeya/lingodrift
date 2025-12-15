@@ -65,7 +65,10 @@ jobs:
             # Ensure Docker is running
             docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
             
-            echo "✅ Backend (FastAPI) & Database (Postgres) Deployed"
+            echo "🔄 Running Database Migrations..."
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml exec -T backend uv run alembic upgrade head
+            
+            echo "✅ Backend (FastAPI) & Database (Postgres) Deployed & Migrated"
 
       - name: Update Caddy Configuration & Reload
         uses: easingthemes/ssh-deploy@v5.1.0

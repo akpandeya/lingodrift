@@ -67,7 +67,11 @@ jobs:
             echo "🐳 Restarting Docker Services..."
             cd /home/ubuntu/lingodrift-app
             docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
-            echo "✅ Backend Services Deployed"
+            
+            echo "🔄 Running Database Migrations..."
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml exec -T backend uv run alembic upgrade head
+            
+            echo "✅ Backend Services Deployed & Migrated"
 
       - name: Update Caddy Configuration & Reload
         uses: easingthemes/ssh-deploy@v5.1.0
