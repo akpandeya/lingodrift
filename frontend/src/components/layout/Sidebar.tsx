@@ -1,9 +1,18 @@
-import { LayoutDashboard, GraduationCap, Settings, BookOpen } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { LayoutDashboard, GraduationCap, Settings, BookOpen, LogOut } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { ThemeToggle } from '../ui/ThemeToggle';
+import { useAuth } from '../../context/AuthContext';
 
 export const Sidebar = () => {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     return (
         <div className="h-full w-64 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors z-10 overflow-y-auto">
             <div className="p-6 border-b border-gray-200 dark:border-gray-800">
@@ -72,7 +81,7 @@ export const Sidebar = () => {
                 </NavLink>
             </nav>
 
-            <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+            <div className="p-4 border-t border-gray-200 dark:border-gray-800 space-y-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400">
@@ -83,8 +92,19 @@ export const Sidebar = () => {
                             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">Free Plan</p>
                         </div>
                     </div>
+                </div>
+
+                <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                     <ThemeToggle />
                 </div>
+
+                <button
+                    onClick={handleLogout}
+                    className="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
+                >
+                    <LogOut className="w-5 h-5" />
+                    Sign Out
+                </button>
             </div>
         </div>
     );

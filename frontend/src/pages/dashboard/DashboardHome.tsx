@@ -1,10 +1,16 @@
+import { useAuth } from '../../context/AuthContext';
+
 export const DashboardHome = () => {
+    const { user } = useAuth();
+
     return (
         <div className="space-y-6">
-            <header>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Willkommen zurück, Alex! 👋</h1>
-                <p className="text-gray-500 dark:text-gray-400 mt-2">Ready to conquer your German B1 Exam today?</p>
-            </header>
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 mb-8 transition-colors">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    Willkommen zurück, {user?.full_name || user?.email?.split('@')[0] || 'User'}! 👋
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400">Ready to conquer your German B1 Exam today?</p>
+            </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
