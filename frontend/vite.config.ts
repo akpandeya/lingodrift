@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      react: '/Users/dipukumari/Documents/akpandeya/flashcards/frontend/node_modules/react',
-      'react-dom': '/Users/dipukumari/Documents/akpandeya/flashcards/frontend/node_modules/react-dom'
+      react: path.resolve(__dirname, './node_modules/react'),
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom')
     }
   },
   server: {
