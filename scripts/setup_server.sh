@@ -26,7 +26,8 @@ fi
 # 3. Setup Directories
 echo "📂 Setting up web directories..."
 mkdir -p /var/www/flashcards
-chown -R ubuntu:ubuntu /var/www/flashcards
+mkdir -p /var/www/flashcards-staging
+chown -R ubuntu:ubuntu /var/www/flashcards /var/www/flashcards-staging
 chmod -R 755 /var/www
 
 # 4. Configure Firewall (UFW)
