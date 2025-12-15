@@ -5,7 +5,7 @@ import { ThemeToggle } from '../ui/ThemeToggle';
 
 export const Sidebar = () => {
     return (
-        <div className="h-screen w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors">
+        <div className="h-full w-64 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors z-10">
             <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
                 <img src="/favicon.svg" alt="LingoDrift Logo" className="w-8 h-8 object-contain" />
                 <span className="text-xl font-bold text-gray-900 dark:text-white">LingoDrift</span>
