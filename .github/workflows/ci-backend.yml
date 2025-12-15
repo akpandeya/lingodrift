@@ -18,18 +18,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
-      
+          python-version: "3.13"
+
       - name: Install Dependencies
-        run: pip install -r requirements.txt
+        run: uv sync --all-extras --dev
       
       # For now, we skip Lint (ruff) config as it's not setup yet, but we run tests
       - name: Run Tests
         # Fails if no tests found? Let's add --ignore=tests for now if no tests exist yet
         # But user wants TDD. So we expect tests.
         # We will create a dummy test_main.py next to ensure this passes.
-        run: pytest
+        run: uv run pytest
