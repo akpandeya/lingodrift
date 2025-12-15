@@ -21,11 +21,9 @@ export const Signup = () => {
                 className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100"
             >
                 <div className="text-center mb-8">
-                    <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4">
-                        L
-                    </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-                    <p className="text-gray-500 mt-2">Start your exam preparation journey today</p>
+                    <img src="/logo.png" alt="LingoDrift" className="w-16 h-16 mx-auto mb-4 object-contain" />
+                    <h1 className="text-2xl font-bold text-gray-900">Create an account</h1>
+                    <p className="text-gray-500 mt-2">Start your German learning journey today</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -36,7 +34,7 @@ export const Signup = () => {
                             <input
                                 type="text"
                                 required
-                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                 placeholder="John Doe"
                             />
                         </div>
@@ -49,7 +47,7 @@ export const Signup = () => {
                             <input
                                 type="email"
                                 required
-                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                 placeholder="you@example.com"
                             />
                         </div>
@@ -62,8 +60,8 @@ export const Signup = () => {
                             <input
                                 type="password"
                                 required
-                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                placeholder="Create a password"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
+                                placeholder="••••••••"
                             />
                         </div>
                     </div>
@@ -71,9 +69,9 @@ export const Signup = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
                     >
-                        {loading ? 'Creating Account...' : 'Get Started'}
+                        {loading ? 'Creating account...' : 'Create Account'}
                         {!loading && <ArrowRight className="w-4 h-4" />}
                     </button>
                 </form>
@@ -81,7 +79,7 @@ export const Signup = () => {
                 <div className="mt-8 text-center">
                     <p className="text-gray-600">
                         Already have an account?{' '}
-                        <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-700">
+                        <Link to="/login" className="font-semibold text-primary-600 hover:text-primary-700">
                             Sign in
                         </Link>
                     </p>

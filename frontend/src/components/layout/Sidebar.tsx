@@ -33,7 +33,7 @@ export const Sidebar = () => {
                         clsx(
                             "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all",
                             isActive
-                                ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                                ? "bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400"
                                 : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
                         )
                     }
@@ -48,7 +48,7 @@ export const Sidebar = () => {
                         clsx(
                             "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all",
                             isActive
-                                ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                                ? "bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400"
                                 : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
                         )
                     }
@@ -63,7 +63,7 @@ export const Sidebar = () => {
                         clsx(
                             "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all",
                             isActive
-                                ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                                ? "bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400"
                                 : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
                         )
                     }

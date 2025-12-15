@@ -34,7 +34,7 @@ export const Login = () => {
                             <input
                                 type="email"
                                 required
-                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                 placeholder="you@example.com"
                             />
                         </div>
@@ -47,19 +47,19 @@ export const Login = () => {
                             <input
                                 type="password"
                                 required
-                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                 placeholder="••••••••"
                             />
                         </div>
                         <div className="flex justify-end mt-2">
-                            <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-700">Forgot password?</a>
+                            <a href="#" className="text-sm font-medium text-primary-600 hover:text-primary-700">Forgot password?</a>
                         </div>
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
                     >
                         {loading ? 'Signing in...' : 'Sign In'}
                         {!loading && <ArrowRight className="w-4 h-4" />}
@@ -69,7 +69,7 @@ export const Login = () => {
                 <div className="mt-8 text-center">
                     <p className="text-gray-600">
                         Don't have an account?{' '}
-                        <Link to="/signup" className="font-semibold text-blue-600 hover:text-blue-700">
+                        <Link to="/signup" className="font-semibold text-primary-600 hover:text-primary-700">
                             Create account
                         </Link>
                     </p>

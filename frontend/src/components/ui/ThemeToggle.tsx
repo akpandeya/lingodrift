@@ -47,7 +47,7 @@ export function ThemeToggle() {
                                     className={clsx(
                                         "flex items-center w-full px-3 py-2 text-sm rounded-lg transition-colors",
                                         theme === name
-                                            ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                                            ? "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
                                             : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                                     )}
                                 >
