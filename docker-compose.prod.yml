@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  db:
+    volumes:
+      # Override the local volume with the Block Volume path
+      - /var/www/backups/postgres_data:/var/lib/postgresql/data
+    environment:
+      # In prod, we should technically inject these via .env file on server 
+      # but for now we keep the same defaults or rely on ENV vars passed to compose
+      # The base docker-compose has defaults.
+      POSTGRES_DB: lingodrift
+
+  backend:
+    # Ensure it restarts
+    restart: always
+    environment:
+      # Internal Docker Network URL
+      DATABASE_URL: postgresql://lingo_user:lingo_password@db:5432/lingodrift
+
+  frontend:
+    # In Prod, we DON'T run the frontend container. 
+    # We serve static files via Caddy on the host.
+    # So we disable this service profile? Or just don't start it?
+    # Docker Compose profiles is the clean way.
+    profiles: [ "dev-only" ]
