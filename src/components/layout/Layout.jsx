@@ -29,12 +29,16 @@ export function Layout({ children }) {
             {/* Main Content */}
             <main className="flex-1 flex flex-col h-full overflow-hidden relative">
                 {/* Mobile Header */}
-                <header className="md:hidden flex items-center p-4 border-b border-slate-800 bg-slate-900/50 backdrop-blur">
-                    <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-slate-400 hover:text-white">
-                        <Menu size={24} />
-                    </button>
-                    <span className="ml-4 font-bold text-lg">LingoFlow</span>
-                </header>
+                <header className="h-16 border-b border-slate-800 bg-slate-950 flex items-center justify-between px-4 sticky top-0 z-30">
+                    <div className="flex items-center">
+                        <button
+                            onClick={() => setIsMobileMenuOpen(true)}
+                            className="p-2 -ml-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+                        >
+                            <Menu size={24} />
+                        </button>
+                        <span className="ml-4 font-bold text-lg">LingoDrift</span>
+                    </div>    </header>
 
                 {/* Content Scroll Area */}
                 <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
