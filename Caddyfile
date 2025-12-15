@@ -1,5 +1,16 @@
-    # Global options
-    email {$ACME_EMAIL}
+# Global options
+email {$ACME_EMAIL}
+}
+
+lingodrift.com {
+    # Production
+    root * /var/www/lingodrift-prod
+    encode gzip
+    try_files {path} /index.html
+    file_server
+    handle /api/* {
+        reverse_proxy localhost:8000
+    }
 }
 
 staging.lingodrift.com {

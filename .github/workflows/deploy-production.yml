@@ -1,0 +1,57 @@
+name: Deploy Production (Promote to Live)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "yes" to confirm deployment to LIVE'
+        required: true
+        default: 'no'
+
+jobs:
+  deploy-production:
+    if: github.event.inputs.confirm == 'yes'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build Frontend (Production)
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy Frontend to Production Dir
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.OCI_SSH_KEY }}
+          ARGS: "-avzr --delete"
+          REMOTE_HOST: ${{ secrets.OCI_HOST }}
+          REMOTE_USER: ${{ secrets.OCI_USERNAME }}
+          SOURCE: "frontend/dist/"
+          TARGET: "/var/www/lingodrift-prod/"
+          SCRIPT_AFTER: |
+            echo "✅ PROD Files Synced to /var/www/lingodrift-prod"
+
+      - name: Update Caddy Configuration & Reload
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.OCI_SSH_KEY }}
+          ARGS: "-avzr"
+          REMOTE_HOST: ${{ secrets.OCI_HOST }}
+          REMOTE_USER: ${{ secrets.OCI_USERNAME }}
+          SOURCE: "Caddyfile"
+          TARGET: "/home/ubuntu/"
+          SCRIPT_AFTER: |
+            echo "🌐 Updating Caddy Configuration..."
+            sudo mv /home/ubuntu/Caddyfile /etc/caddy/Caddyfile
+            sudo systemctl reload caddy
+            echo "✅ Caddy Reloaded (Production Live)"
