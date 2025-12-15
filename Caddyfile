@@ -1,0 +1,29 @@
+{
+    # Global options
+    email {$ACME_EMAIL}
+}
+
+{$ACME_DOMAIN} {
+    # Serve static files from the NEW build directory
+    root * /var/www/lingodrift
+
+    # Enable compression
+    encode gzip
+
+    # Serve files (SPA support)
+    try_files {path} /index.html
+
+    file_server
+
+    # Backend API Proxy
+    handle /api/* {
+        reverse_proxy localhost:8000
+    }
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+    }
+}

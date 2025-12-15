@@ -63,10 +63,21 @@ jobs:
             cd /home/ubuntu/lingodrift-app
             
             # Ensure Docker is running
-            # Pull latest images if needed (though we build locally mostly, here we build on server for simplicity with architecture)
-            # Since we are on ARM (Ampere), building ON THE SERVER is actually safer/easier than cross-compiling in GitHub Actions x86 runner
-            
-            # Bring up DB and Backend using Prod Override
             docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
             
             echo "✅ Backend (FastAPI) & Database (Postgres) Deployed"
+
+      - name: Update Caddy Configuration & Reload
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.OCI_SSH_KEY }}
+          ARGS: "-avzr"
+          REMOTE_HOST: ${{ secrets.OCI_HOST }}
+          REMOTE_USER: ${{ secrets.OCI_USERNAME }}
+          SOURCE: "Caddyfile"
+          TARGET: "/home/ubuntu/"
+          SCRIPT_AFTER: |
+            echo "🌐 Updating Caddy Configuration..."
+            sudo mv /home/ubuntu/Caddyfile /etc/caddy/Caddyfile
+            sudo systemctl reload caddy
+            echo "✅ Caddy Reloaded with New Config"
