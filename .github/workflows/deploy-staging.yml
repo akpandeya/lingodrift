@@ -1,0 +1,57 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Prepare Caddyfile
+        env:
+          EMAIL: ${{ secrets.ACME_EMAIL }}
+          DOMAIN: ${{ secrets.ACME_DOMAIN_STAGING }}
+        run: |
+          sed -i "s|{\$ACME_EMAIL}|$EMAIL|g" Caddyfile
+          sed -i "s|{\$ACME_DOMAIN}|$DOMAIN|g" Caddyfile
+          cp Caddyfile dist/
+
+      - name: Deploy via Rsync
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.OCI_SSH_KEY }}
+          ARGS: "-avzr --delete"
+          REMOTE_HOST: ${{ secrets.OCI_HOST }}
+          REMOTE_USER: ${{ secrets.OCI_USERNAME }}
+          # Deploy to Staging Folder
+          SOURCE: "dist/"
+          TARGET: "/var/www/flashcards-staging/"
+          SCRIPT_BEFORE: |
+            whoami
+            ls -al
+          SCRIPT_AFTER: |
+            echo "🔐 Updating Caddy Configuration..."
+            # Note: We rename it to avoid overwriting Production config
+            # Ensure your main /etc/caddy/Caddyfile has 'import /etc/caddy/*.caddy' or similar
+            sudo mv /var/www/flashcards-staging/Caddyfile /etc/caddy/flashcards-staging.caddy
+            sudo systemctl reload caddy
+            echo "✅ Staging Deployment Complete"

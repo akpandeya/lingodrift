@@ -1,0 +1,34 @@
+# /etc/caddy/Caddyfile
+
+{
+    # Global options
+    email {$ACME_EMAIL}
+}
+
+# Allow loading other configurations (e.g. Staging)
+import /etc/caddy/*.caddy
+
+{$ACME_DOMAIN} {
+    # Serve static files from the build directory
+    root * /var/www/flashcards
+
+    # Enable compression (gzip, zstd)
+    encode gzip
+
+    # Serve files (SPA support: fallback to index.html)
+    try_files {path} /index.html
+
+    file_server
+
+    # Future Backend Proxy (Uncomment when you have a backend)
+    # handle /api/* {
+    #     reverse_proxy localhost:3000
+    # }
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+    }
+}
