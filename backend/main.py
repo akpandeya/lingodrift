@@ -8,6 +8,7 @@ import models
 import schemas
 import auth
 import database
+from routes import exams
 
 # Create Tables (in dev mode, we just do this. In prod, we use Alembic)
 # Create Tables
@@ -23,6 +24,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+app.include_router(exams.router)
 
 @app.get("/")
 def read_root():

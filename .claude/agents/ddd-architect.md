@@ -1,0 +1,1 @@
+../../../claude-tdd-agents/agents/ddd-architect.md

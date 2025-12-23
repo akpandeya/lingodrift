@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, JSON, DateTime, Integer, Text, Enum as SQLAlchemyEnum
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, JSON, Text, Enum as SQLAlchemyEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -70,6 +70,7 @@ class Question(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     section_id = Column(Integer, ForeignKey("exam_sections.id"))
+    text = Column(String, nullable=True) # The question prompt
     type = Column(SQLAlchemyEnum(QuestionType))
     content = Column(JSON) # Stores { "question": "...", "options": [...], "correct_answer": "..." }
     points = Column(Integer, default=1)

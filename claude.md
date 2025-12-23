@@ -68,13 +68,12 @@ npm run test
 npm run test:coverage
 ```
 
-## Available Skills
+## Available Agents
 
 ```bash
 /test_writer     # Generate tests for backend (pytest) or frontend (Vitest)
 /code_writer     # Implement following TDD and DDD patterns
 /test_runner     # Run pytest (backend) or Vitest (frontend)
-/ci_cd_manager   # Manage GitHub Actions workflows
 /ddd_architect   # Domain modeling and architecture guidance
 ```
 
