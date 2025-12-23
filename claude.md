@@ -38,8 +38,8 @@ flashcards/
 
 ### Backend Development (Python)
 
-1. **RED:** `/test_writer` creates pytest test in `backend/tests/`
-2. **GREEN:** `/code_writer` implements domain/application logic
+1. **RED:** `/test_writer_py` creates pytest test in `backend/tests/`
+2. **GREEN:** `/code_writer_py` implements domain/application logic
 3. **REFACTOR:** Improve while keeping tests green
 4. **VERIFY:** `/test_runner` runs `uv run pytest --cov`
 
@@ -54,8 +54,8 @@ uv run pytest --cov --cov-report=html
 
 ### Frontend Development (TypeScript)
 
-1. **RED:** `/test_writer` creates Vitest test in `*.test.tsx`
-2. **GREEN:** `/code_writer` implements component/hook
+1. **RED:** `/test_writer_ts` creates Vitest test in `*.test.tsx`
+2. **GREEN:** `/code_writer_ts` implements component/hook
 3. **REFACTOR:** Extract reusable logic
 4. **VERIFY:** `/test_runner` runs `npm run test`
 
@@ -70,10 +70,21 @@ npm run test:coverage
 
 ## Available Agents
 
+**Backend (Python):**
 ```bash
-/test_writer     # Generate tests for backend (pytest) or frontend (Vitest)
-/code_writer     # Implement following TDD and DDD patterns
-/test_runner     # Run pytest (backend) or Vitest (frontend)
+/test_writer_py  # Generate pytest tests for backend
+/code_writer_py  # Implement Python code following TDD and DDD patterns
+```
+
+**Frontend (TypeScript):**
+```bash
+/test_writer_ts  # Generate Vitest tests for frontend
+/code_writer_ts  # Implement TypeScript code following TDD and DDD patterns
+```
+
+**Shared:**
+```bash
+/test_runner     # Run pytest (backend) or Vitest (frontend) - auto-detects
 /ddd_architect   # Domain modeling and architecture guidance
 ```
 

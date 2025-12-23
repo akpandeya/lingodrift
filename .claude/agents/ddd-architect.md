@@ -1,1 +1,1 @@
-../../../claude-tdd-agents/agents/ddd-architect.md
+../../../agentic-workflows/development/architecture/ddd-architect.md

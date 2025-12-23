@@ -1,1 +1,0 @@
-../../../claude-tdd-agents/agents/code-writer.md
