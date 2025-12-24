@@ -70,22 +70,3 @@ jobs:
             
             echo "✅ Backend (FastAPI) & Database (Postgres) Deployed & Migrated"
 
-      - name: Update Caddy Configuration & Reload
-        uses: easingthemes/ssh-deploy@v5.1.0
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.OCI_SSH_KEY }}
-          ARGS: "-avzr"
-          REMOTE_HOST: ${{ secrets.OCI_HOST }}
-          REMOTE_USER: ${{ secrets.OCI_USERNAME }}
-          SOURCE: "Caddyfile"
-          TARGET: "/home/ubuntu/"
-          SCRIPT_AFTER: |
-            echo "🌐 Updating Caddy Configuration..."
-            sudo mv /home/ubuntu/Caddyfile /etc/caddy/Caddyfile
-            
-            echo "📄 Verifying Caddyfile Content:"
-            cat /etc/caddy/Caddyfile
-            
-            echo "🔄 Restarting Caddy..."
-            sudo systemctl restart caddy
-            echo "✅ Caddy Restarted"
