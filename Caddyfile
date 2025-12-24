@@ -1,5 +1,18 @@
-# Global options
-email {$ACME_EMAIL}
+{
+    email akpandeya1@gmail.com
+}
+
+akpandeya.com {
+    root * /var/www/akpandeya.com
+    encode gzip
+    file_server
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+    }
 }
 
 lingodrift.com {
