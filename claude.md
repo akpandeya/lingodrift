@@ -1,22 +1,68 @@
-# Claude Code Guide for LingoDrift
+# CLAUDE.md
 
-## Project Overview
-Full-stack language learning platform with exam management, user tracking, and progress analytics. Monorepo with FastAPI backend and React frontend, following strict TDD and DDD principles.
+This file provides guidance to Claude Code when working in this repository.
+
+## Repository Purpose
+
+LingoDrift is a full-stack language learning platform with exam management, user tracking, and progress analytics. Helps users prepare for standardized language exams through interactive practice tests and spaced repetition.
 
 ## Monorepo Structure
 
 ```
-flashcards/
+lingodrift/
 ├── backend/              # FastAPI + PostgreSQL + SQLAlchemy
 ├── frontend/             # React + TypeScript + Vite
-├── .agent/
-│   ├── rules/
-│   │   └── context.md
-│   └── skills/          # Symlinked to claude-tdd-skills
-├── .github/workflows/   # CI/CD pipelines
+├── .github/workflows/    # CI/CD pipelines
 ├── docker-compose.yml
-└── claude.md           # This file
+└── CLAUDE.md            # This file
 ```
+
+## TDD Agents
+
+This project uses agents from the agentic-workflows repository for strict Test-Driven Development workflows.
+
+**Backend (Python):**
+- `/test_writer_py` - Write pytest tests for backend (RED phase)
+- `/code_writer_py` - Implement Python code with DDD patterns (GREEN phase)
+
+**Frontend (TypeScript):**
+- `/test_writer_ts` - Write Vitest tests for frontend (RED phase)
+- `/code_writer_ts` - Implement TypeScript code with DDD patterns (GREEN phase)
+
+**Shared:**
+- `/test_runner` - Run pytest (backend) or Vitest (frontend) - auto-detects
+- `/ddd_architect` - Domain modeling and architecture guidance
+
+See `../agentic-workflows/CLAUDE.md` for complete agent documentation and TDD workflow.
+
+## Related Repositories
+
+- `../agentic-workflows` - TDD/DDD agent definitions and workflows
+- `../akpandeya.com` - Personal website (may share authentication patterns)
+- `../oracle-infrastructure` - Deployment infrastructure (SSH access required)
+
+## SSH and Git Permissions
+
+This project uses 1Password for SSH/git credential management.
+
+**Permission Pattern**: Always test SSH and git connections early in tasks to trigger 1Password approval prompts:
+
+```bash
+# Test connections at the start of tasks
+ssh exterminator echo "Connected"  # Oracle infrastructure access
+gh auth status                      # GitHub CLI authentication
+
+# Wait for 1Password approval
+# User can then step away from PC
+# Proceed with actual work
+```
+
+### SSH Configuration
+
+**Oracle Infrastructure Access**:
+- **SSH alias**: `exterminator` (defined in `~/.ssh/config`)
+- **Auth**: 1Password SSH Agent (requires manual approval)
+- **Purpose**: Deployment, infrastructure management, production access
 
 ## Tech Stack
 
@@ -34,61 +80,78 @@ flashcards/
 - **Styling:** Tailwind CSS 3
 - **HTTP Client:** Axios with interceptors
 
+## Common Commands
+
+### Backend Development
+
+```bash
+# Start development server
+cd backend
+uv run uvicorn main:app --reload
+
+# Run tests
+uv run pytest                         # Run all tests
+uv run pytest --watch                 # Watch mode for TDD
+uv run pytest --cov                   # With coverage
+uv run pytest --cov --cov-report=html # HTML coverage report
+uv run pytest --cov --cov-fail-under=85 # Enforce 85% coverage
+
+# Database migrations
+uv run alembic revision --autogenerate -m "Description"
+uv run alembic upgrade head
+uv run alembic downgrade -1
+```
+
+### Frontend Development
+
+```bash
+# Start development server
+cd frontend
+npm run dev                   # http://localhost:5173
+
+# Testing
+npm run test                  # Watch mode for TDD
+npm run test:run              # Run once
+npm run test:coverage         # With coverage
+npm run test:ui               # Open Vitest UI
+
+# Linting & Building
+npm run lint                  # ESLint
+npm run build                 # Production build
+npm run preview               # Preview production build
+```
+
+### Docker Development
+
+```bash
+# Start full stack
+docker-compose up
+
+# Services available at:
+# - Frontend: http://localhost:5173
+# - Backend: http://localhost:8000
+# - Database: localhost:5432
+
+# Run tests in Docker
+docker-compose exec backend uv run pytest
+docker-compose exec frontend npm run test:run
+```
+
 ## Development Workflow (Strict TDD)
 
-### Backend Development (Python)
-
+### Backend (Python)
 1. **RED:** `/test_writer_py` creates pytest test in `backend/tests/`
 2. **GREEN:** `/code_writer_py` implements domain/application logic
 3. **REFACTOR:** Improve while keeping tests green
 4. **VERIFY:** `/test_runner` runs `uv run pytest --cov`
 
-```bash
-# Watch mode for TDD
-cd backend
-uv run pytest --watch
-
-# With coverage
-uv run pytest --cov --cov-report=html
-```
-
-### Frontend Development (TypeScript)
-
+### Frontend (TypeScript)
 1. **RED:** `/test_writer_ts` creates Vitest test in `*.test.tsx`
 2. **GREEN:** `/code_writer_ts` implements component/hook
 3. **REFACTOR:** Extract reusable logic
 4. **VERIFY:** `/test_runner` runs `npm run test`
 
-```bash
-# Watch mode
-cd frontend
-npm run test
-
-# Coverage
-npm run test:coverage
-```
-
-## Available Agents
-
-**Backend (Python):**
-```bash
-/test_writer_py  # Generate pytest tests for backend
-/code_writer_py  # Implement Python code following TDD and DDD patterns
-```
-
-**Frontend (TypeScript):**
-```bash
-/test_writer_ts  # Generate Vitest tests for frontend
-/code_writer_ts  # Implement TypeScript code following TDD and DDD patterns
-```
-
-**Shared:**
-```bash
-/test_runner     # Run pytest (backend) or Vitest (frontend) - auto-detects
-/ddd_architect   # Domain modeling and architecture guidance
-```
-
-## Domain-Driven Design
+## Domain Model
 
 ### Bounded Contexts
 
@@ -156,31 +219,26 @@ class SQLAlchemyExamRepository(ExamRepository):
     pass
 ```
 
-## Testing
+### Ubiquitous Language
 
-### Backend Coverage Requirements
+- "Exam" not "test" or "quiz"
+- "Section" not "part" or "chapter"
+- "Attempt" not "session" or "take"
+- "Question" not "item" or "problem"
 
+## Testing Requirements
+
+### Backend Coverage
 - **Domain Logic:** 90%+
 - **Application Layer:** 85%+
 - **API Routes:** 85%+
 - **Overall:** 85%+
 
-```bash
-cd backend
-uv run pytest --cov --cov-fail-under=85
-```
-
-### Frontend Coverage Requirements
-
+### Frontend Coverage
 - **Components:** 80%+
 - **Hooks/Utils:** 90%+
 - **Business Logic:** 90%+
 - **Overall:** 80%+
-
-```bash
-cd frontend
-npm run test:coverage
-```
 
 ### Test Organization
 
@@ -239,6 +297,22 @@ Manual deployment (workflow_dispatch)
 - Same as staging but to production paths
 - Requires approval
 
+## Authentication
+
+### JWT Flow
+1. User logs in: POST `/api/auth/login`
+2. Backend returns JWT token
+3. Frontend stores in localStorage
+4. Axios interceptor adds to headers
+5. Backend validates on protected routes
+
+### OAuth Flow
+1. User clicks "Login with Google"
+2. Redirect to OAuth provider
+3. Callback to `/api/auth/oauth/callback`
+4. Backend creates/updates user
+5. Returns JWT token
+
 ## Common Tasks
 
 ### Add New API Endpoint
@@ -246,15 +320,15 @@ Manual deployment (workflow_dispatch)
 ```bash
 # 1. Write test first
 cd backend
-/test_writer "Test POST /api/exams endpoint creates new exam"
+/test_writer_py "Test POST /api/exams endpoint creates new exam"
 
 # 2. Implement
-/code_writer "Implement exam creation endpoint in routes/exams.py"
+/code_writer_py "Implement exam creation endpoint in routes/exams.py"
 
 # 3. Run tests
 uv run pytest -k test_create_exam
 
-# 4. Verify
+# 4. Verify coverage
 uv run pytest --cov
 ```
 
@@ -263,15 +337,15 @@ uv run pytest --cov
 ```bash
 # 1. Write test
 cd frontend
-/test_writer "Test ExamCard component displays title and level"
+/test_writer_ts "Test ExamCard component displays title and level"
 
 # 2. Implement
-/code_writer "Create ExamCard component in components/"
+/code_writer_ts "Create ExamCard component in components/"
 
 # 3. Run tests
 npm run test -- ExamCard
 
-# 4. Verify
+# 4. Verify coverage
 npm run test:coverage
 ```
 
@@ -290,6 +364,16 @@ uv run alembic upgrade head
 # 5. Add to repository
 git add alembic/versions/
 ```
+
+## Best Practices
+
+1. **Tests first** - All code requires tests before implementation
+2. **Domain-driven** - Model the language learning domain accurately
+3. **Self-documenting** - Clear names, minimal comments
+4. **Type safety** - TypeScript strict mode, Pydantic validation
+5. **API contracts** - Pydantic schemas for request/response
+6. **Error handling** - Proper HTTP status codes, error messages
+7. **Security** - Input validation, SQL injection prevention, XSS protection
 
 ## Self-Documenting Code
 
@@ -321,55 +405,6 @@ def can_attempt_exam(user: User, exam: Exam) -> bool:
         return False
     return True
 ```
-
-## Docker Development
-
-### Start Full Stack
-
-```bash
-docker-compose up
-```
-
-Services:
-- Frontend: http://localhost:5173
-- Backend: http://localhost:8000
-- Database: localhost:5432
-
-### Run Tests in Docker
-
-```bash
-# Backend tests
-docker-compose exec backend uv run pytest
-
-# Frontend tests
-docker-compose exec frontend npm run test:run
-```
-
-## Authentication
-
-### JWT Flow
-1. User logs in: POST `/api/auth/login`
-2. Backend returns JWT token
-3. Frontend stores in localStorage
-4. Axios interceptor adds to headers
-5. Backend validates on protected routes
-
-### OAuth Flow
-1. User clicks "Login with Google"
-2. Redirect to OAuth provider
-3. Callback to `/api/auth/oauth/callback`
-4. Backend creates/updates user
-5. Returns JWT token
-
-## Best Practices
-
-1. **Tests first** - All code requires tests before implementation
-2. **Domain-driven** - Model the language learning domain accurately
-3. **Self-documenting** - Clear names, minimal comments
-4. **Type safety** - TypeScript strict mode, Pydantic validation
-5. **API contracts** - Pydantic schemas for request/response
-6. **Error handling** - Proper HTTP status codes, error messages
-7. **Security** - Input validation, SQL injection prevention, XSS protection
 
 ## Troubleshooting
 
@@ -405,7 +440,7 @@ npm run build
 
 ## Resources
 
-- **Skills:** `/Users/dipukumari/Documents/akpandeya/claude-tdd-skills/`
+- **TDD/DDD Agents:** `../agentic-workflows/`
 - **FastAPI:** https://fastapi.tiangolo.com
 - **SQLAlchemy:** https://docs.sqlalchemy.org
 - **React:** https://react.dev
